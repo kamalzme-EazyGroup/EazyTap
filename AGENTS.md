@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Card images (photo, cover, QR logo) are stored as resized data URLs in the `cards` row, because the workspace blocks public storage buckets.
+- Public card pages (/c/$slug) load through a publishable-key server function so SSR can set share metadata; owner editing uses the browser client under RLS.
+- Card colour themes are CSS blocks keyed by `[data-card-theme]` in src/styles.css, listed in src/lib/themes.ts; add a theme in both places.
