@@ -49,7 +49,7 @@ export function StyledQR({
         settings.logo ? roundCorners(settings.logo).catch(() => settings.logo) : Promise.resolve(null),
       ]);
       if (cancelled || !ref.current) return;
-      const opts = buildOptions(data, { ...settings, logo }, size);
+      const opts = buildOptions(data, { ...settings, logo: logo ?? null }, size);
       if (!qrRef.current) {
         const qr = new QRCodeStyling(opts as never) as unknown as QRInstance;
         ref.current.innerHTML = "";
