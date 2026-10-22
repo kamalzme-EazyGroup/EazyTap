@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { QrSettings } from "@/lib/card-types";
+import { roundCorners } from "@/lib/image";
 
 type QRInstance = {
   append: (el: HTMLElement) => void;
@@ -42,18 +43,23 @@ export function StyledQR({
 
   useEffect(() => {
     let cancelled = false;
-    import("qr-code-styling").then(({ default: QRCodeStyling }) => {
+    (async () => {
+      const [{ default: QRCodeStyling }, logo] = await Promise.all([
+        import("qr-code-styling"),
+        settings.logo ? roundCorners(settings.logo).catch(() => settings.logo) : Promise.resolve(null),
+      ]);
       if (cancelled || !ref.current) return;
+      const opts = buildOptions(data, { ...settings, logo: logo ?? null }, size);
       if (!qrRef.current) {
-        const qr = new QRCodeStyling(buildOptions(data, settings, size) as never) as unknown as QRInstance;
+        const qr = new QRCodeStyling(opts as never) as unknown as QRInstance;
         ref.current.innerHTML = "";
         qr.append(ref.current);
         qrRef.current = qr;
         onReady?.(qr);
       } else {
-        qrRef.current.update(buildOptions(data, settings, size));
+        qrRef.current.update(opts);
       }
-    });
+    })();
     return () => {
       cancelled = true;
     };

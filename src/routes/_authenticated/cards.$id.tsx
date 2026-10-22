@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowLeft, Copy, Download, ExternalLink, ImagePlus, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,8 @@ import { CardView } from "@/components/CardView";
 import { StyledQR, type QRInstance } from "@/components/StyledQR";
 import { SOCIAL_KEYS, rowToCard, type CardData, type QrSettings } from "@/lib/card-types";
 import { CARD_THEMES } from "@/lib/themes";
-import { fileToDataUrl } from "@/lib/image";
+import { readFile } from "@/lib/image";
+import { CropDialog, type CropRequest } from "@/components/CropDialog";
 import { cn } from "@/lib/utils";
 
 const cardQuery = (id: string) =>
@@ -63,6 +64,18 @@ function Editor() {
 
   const set = <K extends keyof CardData>(k: K, v: CardData[K]) => setCard((c) => ({ ...c, [k]: v }));
   const setQr = (patch: Partial<QrSettings>) => setCard((c) => ({ ...c, qr_settings: { ...c.qr_settings, ...patch } }));
+  const [cropReq, setCropReq] = useState<CropRequest | null>(null);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    html.setAttribute("data-app-theme", "");
+    html.setAttribute("data-card-theme", card.theme);
+    return () => {
+      html.removeAttribute("data-app-theme");
+      html.removeAttribute("data-card-theme");
+    };
+  }, [card.theme]);
+
   const qrSettings = useMemo(() => card.qr_settings, [card.qr_settings]);
 
   async function save() {
@@ -81,10 +94,10 @@ function Editor() {
     toast.success("Card saved");
   }
 
-  async function pickImage(file: File | undefined, max: number, cb: (v: string) => void, png = false) {
+  async function pickImage(file: File | undefined, opts: Omit<CropRequest, "src" | "onDone">, cb: (v: string) => void) {
     if (!file) return;
     try {
-      cb(await fileToDataUrl(file, max, png ? "image/png" : "image/jpeg"));
+      setCropReq({ ...opts, src: await readFile(file), onDone: cb });
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -128,8 +141,8 @@ function Editor() {
           <TabsContent value="profile">
             <Panel>
               <div className="grid gap-6 sm:grid-cols-2">
-                <ImagePicker label="Profile photo" value={card.avatar_url} round onPick={(f) => pickImage(f, 400, (v) => set("avatar_url", v))} onClear={() => set("avatar_url", null)} />
-                <ImagePicker label="Cover image" value={card.cover_url} onPick={(f) => pickImage(f, 1000, (v) => set("cover_url", v))} onClear={() => set("cover_url", null)} />
+                <ImagePicker label="Profile photo" value={card.avatar_url} round onPick={(f) => pickImage(f, { aspect: 1, round: true, maxSize: 400 }, (v) => set("avatar_url", v))} onClear={() => set("avatar_url", null)} />
+                <ImagePicker label="Cover image" value={card.cover_url} onPick={(f) => pickImage(f, { aspect: 384 / 144, maxSize: 1000 }, (v) => set("cover_url", v))} onClear={() => set("cover_url", null)} />
               </div>
               <Field label="Full name"><Input value={card.full_name} onChange={(e) => set("full_name", e.target.value)} placeholder="Jane Doe" /></Field>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -235,11 +248,11 @@ function Editor() {
                 <div className="flex items-center gap-3">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm hover:bg-accent">
                     <ImagePlus className="h-4 w-4" /> {qrSettings.logo ? "Replace logo" : "Upload logo"}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => pickImage(e.target.files?.[0], 300, (v) => setQr({ logo: v }), true)} />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { pickImage(e.target.files?.[0], { aspect: 1, maxSize: 300, png: true }, (v) => setQr({ logo: v })); e.target.value = ""; }} />
                   </label>
                   {qrSettings.logo && (
                     <>
-                      <img src={qrSettings.logo} alt="Logo" className="h-10 w-10 rounded bg-secondary object-contain" />
+                      <img src={qrSettings.logo} alt="Logo" className="h-10 w-10 rounded-lg bg-secondary object-contain" />
                       <Button variant="ghost" size="sm" onClick={() => setQr({ logo: null })}><X /> Remove</Button>
                     </>
                   )}
@@ -274,6 +287,7 @@ function Editor() {
           </div>
         </aside>
       </div>
+      <CropDialog request={cropReq} onClose={() => setCropReq(null)} />
     </div>
   );
 }
@@ -320,7 +334,7 @@ function ImagePicker({ label, value, round, onPick, onClear }: { label: string; 
       <div className="flex items-center gap-3">
         <label className={cn("flex h-20 cursor-pointer items-center justify-center overflow-hidden border border-dashed bg-secondary hover:bg-accent", round ? "w-20 rounded-full" : "w-32 rounded-xl")}>
           {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <ImagePlus className="h-5 w-5 text-muted-foreground" />}
-          <input type="file" accept="image/*" className="hidden" onChange={(e) => onPick(e.target.files?.[0])} />
+          <input type="file" accept="image/*" className="hidden" onChange={(e) => { onPick(e.target.files?.[0]); e.target.value = ""; }} />
         </label>
         {value && <Button variant="ghost" size="sm" onClick={onClear}><X /> Remove</Button>}
       </div>
