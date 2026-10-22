@@ -11,7 +11,7 @@ export const Route = createFileRoute("/c/$slug")({
   },
   head: ({ loaderData }) => {
     const c = loaderData?.card;
-    const title = c ? `${c.full_name || "Contact"} — Tapcard` : "Card unavailable — Tapcard";
+    const title = c ? `${c.full_name || "Contact"} — EazyTap` : "Card unavailable — EazyTap";
     const desc = c ? [c.job_title, c.company].filter(Boolean).join(" · ") || "Save my contact details." : "This card is unavailable.";
     return {
       meta: [
@@ -42,7 +42,7 @@ function PublicCard() {
         <p className="mt-8 text-center text-xs text-c-muted">
           Made with{" "}
           <Link to="/" className="underline">
-            Tapcard
+            EazyTap
           </Link>
         </p>
       </div>

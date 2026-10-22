@@ -31,9 +31,9 @@ const cardQuery = (id: string) =>
 export const Route = createFileRoute("/_authenticated/cards/$id")({
   head: () => ({
     meta: [
-      { title: "Edit card — Tapcard" },
+      { title: "Edit card — EazyTap" },
       { name: "description", content: "Design your digital business card and QR code." },
-      { property: "og:title", content: "Edit card — Tapcard" },
+      { property: "og:title", content: "Edit card — EazyTap" },
       { property: "og:description", content: "Design your digital business card and QR code." },
     ],
   }),
