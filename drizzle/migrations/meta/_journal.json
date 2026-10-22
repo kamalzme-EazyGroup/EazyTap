@@ -15,6 +15,13 @@
       "when": 1792669889347,
       "tag": "0001_add_card_font",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792669935526,
+      "tag": "0002_default_theme_royal",
+      "breakpoints": true
     }
   ]
 }
