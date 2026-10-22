@@ -88,7 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=DM+Sans:wght@400;600&family=Playfair+Display:wght@500;700&family=Lato:wght@400;700&family=Nunito:wght@400;700;800&family=Bebas+Neue&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@500;700&family=Rubik:wght@400;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=DM+Sans:wght@400;600&family=Playfair+Display:wght@500;700&family=Lato:wght@400;700&family=Nunito:wght@400;700;800&family=Bebas+Neue&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@500;700&family=Rubik:wght@400;600&family=Fredoka:wght@500;600;700&display=swap",
       },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
