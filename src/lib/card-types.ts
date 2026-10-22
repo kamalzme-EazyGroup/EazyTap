@@ -57,7 +57,7 @@ export type CardData = {
   qr_settings: QrSettings;
 };
 
-export function rowToCard(row: CardRow): CardData {
+export function rowToCard(row: Omit<CardRow, "user_id">): CardData {
   return {
     slug: row.slug,
     label: row.label,
