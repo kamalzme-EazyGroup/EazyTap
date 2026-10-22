@@ -22,6 +22,13 @@
       "when": 1792669935526,
       "tag": "0002_default_theme_royal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792670435517,
+      "tag": "0003_drop_unused_card_media_read_policy",
+      "breakpoints": true
     }
   ]
 }
