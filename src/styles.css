@@ -152,6 +152,23 @@
   --c-cover: linear-gradient(135deg, oklch(0.7 0.12 220), oklch(0.5 0.15 250) 60%, oklch(0.8 0.1 190));
 }
 
+[data-card-theme="royal"] {
+  --c-bg: oklch(0.18 0.06 262); --c-surface: oklch(0.24 0.07 262); --c-text: oklch(0.97 0.01 240);
+  --c-muted: oklch(0.75 0.05 245); --c-accent: oklch(0.65 0.19 252); --c-accent-fg: oklch(0.99 0 0);
+  --c-line: oklch(1 0 0 / 10%);
+  --c-cover: linear-gradient(135deg, oklch(0.55 0.2 255), oklch(0.3 0.12 265) 55%, oklch(0.75 0.13 220));
+}
+
+/* ---------- Card font pairs ---------- */
+[data-card-font] { --cf-display: "Fraunces", Georgia, serif; --cf-body: "Manrope", system-ui, sans-serif; font-family: var(--cf-body); }
+[data-card-font="modern"] { --cf-display: "Space Grotesk", sans-serif; --cf-body: "DM Sans", sans-serif; }
+[data-card-font="elegant"] { --cf-display: "Playfair Display", serif; --cf-body: "Lato", sans-serif; }
+[data-card-font="friendly"] { --cf-display: "Nunito", sans-serif; --cf-body: "Nunito", sans-serif; }
+[data-card-font="bold"] { --cf-display: "Bebas Neue", sans-serif; --cf-body: "Barlow", sans-serif; }
+[data-card-font="tech"] { --cf-display: "JetBrains Mono", monospace; --cf-body: "Rubik", sans-serif; }
+[data-card-font] h1, [data-card-font] h2, [data-card-font] h3, [data-card-font] .font-display, .card-font-display { font-family: var(--cf-display); }
+.card-font-body { font-family: var(--cf-body); }
+
 /* Whole-app theming: <html data-app-theme data-card-theme="..."> maps card tokens onto platform tokens */
 html[data-app-theme] {
   --background: var(--c-bg);

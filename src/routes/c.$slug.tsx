@@ -36,7 +36,7 @@ export const Route = createFileRoute("/c/$slug")({
 function PublicCard() {
   const { card } = Route.useLoaderData();
   return (
-    <div data-card-theme={card.theme} className="min-h-screen">
+    <div data-card-theme={card.theme} data-card-font={card.font} className="min-h-screen">
       <div className="mx-auto max-w-md px-4 py-8 sm:py-14">
         <CardView card={card} pageUrl={typeof window !== "undefined" ? window.location.href : undefined} />
         <p className="mt-8 text-center text-xs text-c-muted">
