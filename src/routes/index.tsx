@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CardView } from "@/components/CardView";
 import { StyledQR } from "@/components/StyledQR";
 import { Logo } from "@/components/Logo";
+import demoAvatar from "@/assets/demo-avatar.jpg";
 import { DEFAULT_QR, type CardData } from "@/lib/card-types";
 import { useSession } from "@/hooks/use-session";
 
@@ -30,7 +31,7 @@ const DEMO: CardData = {
   email: "kamal@lumen.studio",
   website: "lumen.studio",
   address: null,
-  avatar_url: null,
+  avatar_url: demoAvatar,
   cover_url: null,
   socials: { linkedin: "linkedin.com", instagram: "instagram.com", whatsapp: "+94771234567" },
   custom_fields: [],
