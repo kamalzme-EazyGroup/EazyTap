@@ -52,7 +52,7 @@ function Dashboard() {
       .select("id")
       .single();
     setCreating(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await qc.invalidateQueries({ queryKey: ["my-cards"] });
     navigate({ to: "/cards/$id", params: { id: data.id } });
   }
@@ -60,7 +60,7 @@ function Dashboard() {
   async function remove(id: string) {
     if (!confirm("Delete this card? Its QR code will stop working.")) return;
     const { error } = await supabase.from("cards").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Card deleted");
     qc.invalidateQueries({ queryKey: ["my-cards"] });
   }

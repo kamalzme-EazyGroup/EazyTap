@@ -30,7 +30,7 @@ const ICONS: Record<SocialKey, ComponentType<{ className?: string }>> = {
   telegram: Send,
 };
 
-export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?: string; compact?: boolean }) {
+export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?: string | undefined; compact?: boolean | undefined }) {
   const initials = card.full_name
     .split(/\s+/)
     .filter(Boolean)

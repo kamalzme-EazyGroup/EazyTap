@@ -67,14 +67,14 @@ function Editor() {
 
   async function save() {
     const slug = card.slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
-    if (slug.length < 3) return toast.error("Link must be at least 3 characters");
+    if (slug.length < 3) { toast.error("Link must be at least 3 characters"); return; }
     setSaving(true);
     const { error } = await supabase
       .from("cards")
       .update({ ...card, slug, custom_fields: card.custom_fields, socials: card.socials, qr_settings: card.qr_settings })
       .eq("id", id);
     setSaving(false);
-    if (error) return toast.error(error.code === "23505" ? "That link is already taken" : error.message);
+    if (error) { toast.error(error.code === "23505" ? "That link is already taken" : error.message); return; }
     setCard((c) => ({ ...c, slug }));
     qc.invalidateQueries({ queryKey: ["my-cards"] });
     qc.invalidateQueries({ queryKey: ["card", id] });
@@ -247,7 +247,7 @@ function Editor() {
               </Field>
               {qrSettings.logo && (
                 <Field label={`Logo size — ${Math.round(qrSettings.logoSize * 100)}%`}>
-                  <Slider min={0.15} max={0.45} step={0.01} value={[qrSettings.logoSize]} onValueChange={([v]) => setQr({ logoSize: v })} />
+                  <Slider min={0.15} max={0.45} step={0.01} value={[qrSettings.logoSize]} onValueChange={([v]) => setQr({ logoSize: v ?? 0.3 })} />
                 </Field>
               )}
             </Panel>
