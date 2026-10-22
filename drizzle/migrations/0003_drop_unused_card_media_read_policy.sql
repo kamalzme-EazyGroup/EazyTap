@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public read card media" ON storage.objects;
