@@ -42,7 +42,7 @@ function PublicCard() {
         <p className="mt-8 text-center text-xs text-c-muted">
           Made with{" "}
           <Link to="/" className="underline">
-            EazyTap
+            <span className="font-brand font-semibold">EazyTap</span>
           </Link>
         </p>
       </div>
