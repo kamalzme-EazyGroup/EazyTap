@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as CSlugRouteImport } from './routes/c.$slug'
+import { Route as AuthenticatedCardsIdRouteImport } from './routes/_authenticated/cards.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,18 +40,25 @@ const CSlugRoute = CSlugRouteImport.update({
   path: '/c/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCardsIdRoute = AuthenticatedCardsIdRouteImport.update({
+  id: '/cards/$id',
+  path: '/cards/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/c/$slug': typeof CSlugRoute
+  '/cards/$id': typeof AuthenticatedCardsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/c/$slug': typeof CSlugRoute
+  '/cards/$id': typeof AuthenticatedCardsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/c/$slug': typeof CSlugRoute
+  '/_authenticated/cards/$id': typeof AuthenticatedCardsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/c/$slug'
+  fullPaths: '/' | '/auth' | '/dashboard' | '/c/$slug' | '/cards/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/c/$slug'
+  to: '/' | '/auth' | '/dashboard' | '/c/$slug' | '/cards/$id'
   id:
     | '__root__'
     | '/'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/c/$slug'
+    | '/_authenticated/cards/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,15 +128,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/cards/$id': {
+      id: '/_authenticated/cards/$id'
+      path: '/cards/$id'
+      fullPath: '/cards/$id'
+      preLoaderRoute: typeof AuthenticatedCardsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedCardsIdRoute: typeof AuthenticatedCardsIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedCardsIdRoute: AuthenticatedCardsIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
