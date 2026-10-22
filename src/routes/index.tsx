@@ -1,24 +1,99 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Palette, QrCode, Smartphone, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CardView } from "@/components/CardView";
+import { StyledQR } from "@/components/StyledQR";
+import { Logo } from "@/components/Logo";
+import { DEFAULT_QR, type CardData } from "@/lib/card-types";
+import { useSession } from "@/hooks/use-session";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Tapcard — Your digital business card, one scan away" },
+      { name: "description", content: "Design premium digital business cards with branded QR codes. One scan saves your details straight to their phone." },
+      { property: "og:title", content: "Tapcard — Your digital business card, one scan away" },
+      { property: "og:description", content: "Design premium digital business cards with branded QR codes." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+const DEMO: CardData = {
+  slug: "demo",
+  label: "Demo",
+  full_name: "Amara Perera",
+  job_title: "Creative Director",
+  company: "Lumen Studio",
+  bio: "Brand strategist crafting identities for hospitality and luxury brands.",
+  phone: "+94 77 123 4567",
+  email: "amara@lumen.studio",
+  website: "lumen.studio",
+  address: null,
+  avatar_url: null,
+  cover_url: null,
+  socials: { linkedin: "linkedin.com", instagram: "instagram.com", whatsapp: "+94771234567" },
+  custom_fields: [],
+  theme: "obsidian",
+  qr_settings: DEFAULT_QR,
+};
+
 function Index() {
+  const { session } = useSession();
+  const cta = session ? "/dashboard" : "/auth";
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen overflow-hidden bg-aurora grain">
+      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+        <Logo />
+        <Button asChild variant="glass" size="sm">
+          <Link to={cta}>{session ? "My cards" : "Sign in"}</Link>
+        </Button>
+      </header>
+
+      <main className="relative z-10 mx-auto grid max-w-6xl items-center gap-16 px-6 pb-24 pt-10 lg:grid-cols-2">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-xs text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" /> The last business card you'll need
+          </span>
+          <h1 className="mt-6 text-5xl font-semibold leading-[1.05] md:text-7xl">
+            One scan.
+            <br />
+            <span className="text-gradient-gold italic">Saved forever.</span>
+          </h1>
+          <p className="mt-6 max-w-md text-lg text-muted-foreground">
+            Build stunning digital profiles, share them with a branded QR code, and let anyone save your
+            details to their phone in a single tap.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild variant="hero" size="lg" className="h-12 px-7">
+              <Link to={cta}>
+                Create your card <ArrowRight />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-12 grid max-w-md grid-cols-2 gap-4 text-sm">
+            {[
+              { icon: QrCode, t: "Custom QR with your logo" },
+              { icon: Palette, t: "7 premium colour themes" },
+              { icon: UserPlus, t: "Save-to-contacts in one tap" },
+              { icon: Smartphone, t: "Unlimited profiles" },
+            ].map((f) => (
+              <div key={f.t} className="flex items-center gap-3 text-muted-foreground">
+                <f.icon className="h-4 w-4 text-primary" /> {f.t}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative mx-auto w-full max-w-sm">
+          <div className="animate-float">
+            <CardView card={DEMO} compact />
+          </div>
+          <div className="absolute -bottom-10 -left-14 hidden rotate-[-8deg] rounded-3xl bg-card p-3 shadow-float md:block">
+            <StyledQR data="https://tapcard.app" settings={DEMO.qr_settings} size={130} />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
