@@ -1,12 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import logo from "@/assets/eazytap-logo.png";
 
 export function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2">
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-gold font-display text-lg font-bold text-primary-foreground">
-        T
-      </span>
-      <span className="font-display text-xl tracking-tight">Tapcard</span>
+      <img src={logo} alt="EazyTap logo" width={32} height={32} className="h-8 w-8" />
+      <span className="font-display text-xl tracking-tight">EazyTap</span>
     </Link>
   );
 }

@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tapcard — Digital business cards with QR" },
+      { title: "EazyTap — Digital business cards with QR" },
       { name: "description", content: "Create beautiful digital business cards with custom QR codes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

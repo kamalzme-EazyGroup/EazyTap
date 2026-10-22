@@ -12,9 +12,9 @@ import { Logo } from "@/components/Logo";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Tapcard" },
-      { name: "description", content: "Sign in or create your Tapcard account to build digital business cards." },
-      { property: "og:title", content: "Sign in — Tapcard" },
+      { title: "Sign in — EazyTap" },
+      { name: "description", content: "Sign in or create your EazyTap account to build digital business cards." },
+      { property: "og:title", content: "Sign in — EazyTap" },
       { property: "og:description", content: "Sign in to build your digital business cards." },
     ],
   }),

@@ -26,9 +26,9 @@ const cardsQuery = queryOptions({
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "My cards — Tapcard" },
+      { title: "My cards — EazyTap" },
       { name: "description", content: "Manage your digital business cards and QR codes." },
-      { property: "og:title", content: "My cards — Tapcard" },
+      { property: "og:title", content: "My cards — EazyTap" },
       { property: "og:description", content: "Manage your digital business cards." },
     ],
   }),

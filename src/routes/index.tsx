@@ -10,9 +10,9 @@ import { useSession } from "@/hooks/use-session";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tapcard — Your digital business card, one scan away" },
+      { title: "EazyTap — Your digital business card, one scan away" },
       { name: "description", content: "Design premium digital business cards with branded QR codes. One scan saves your details straight to their phone." },
-      { property: "og:title", content: "Tapcard — Your digital business card, one scan away" },
+      { property: "og:title", content: "EazyTap — Your digital business card, one scan away" },
       { property: "og:description", content: "Design premium digital business cards with branded QR codes." },
     ],
   }),
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/")({
 const DEMO: CardData = {
   slug: "demo",
   label: "Demo",
-  full_name: "Amara Perera",
+  full_name: "Kamal Sam",
   job_title: "Creative Director",
   company: "Lumen Studio",
   bio: "Brand strategist crafting identities for hospitality and luxury brands.",
