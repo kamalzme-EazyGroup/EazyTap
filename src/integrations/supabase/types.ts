@@ -229,6 +229,14 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: never; Returns: boolean }
+      set_feature_permissions: {
+        Args: {
+          p_organization_id: string
+          p_permissions: Json
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "super_admin"
