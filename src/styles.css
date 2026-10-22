@@ -152,6 +152,33 @@
   --c-cover: linear-gradient(135deg, oklch(0.7 0.12 220), oklch(0.5 0.15 250) 60%, oklch(0.8 0.1 190));
 }
 
+/* Whole-app theming: <html data-app-theme data-card-theme="..."> maps card tokens onto platform tokens */
+html[data-app-theme] {
+  --background: var(--c-bg);
+  --foreground: var(--c-text);
+  --card: var(--c-surface);
+  --card-foreground: var(--c-text);
+  --popover: var(--c-surface);
+  --popover-foreground: var(--c-text);
+  --primary: var(--c-accent);
+  --primary-glow: var(--c-accent);
+  --primary-deep: var(--c-accent);
+  --primary-foreground: var(--c-accent-fg);
+  --secondary: var(--c-surface);
+  --secondary-foreground: var(--c-text);
+  --muted: var(--c-surface);
+  --muted-foreground: var(--c-muted);
+  --accent: color-mix(in oklch, var(--c-surface), var(--c-text) 8%);
+  --accent-foreground: var(--c-text);
+  --border: var(--c-line);
+  --input: var(--c-line);
+  --ring: var(--c-accent);
+  --gradient-aurora:
+    radial-gradient(60% 50% at 20% 10%, color-mix(in oklch, var(--c-accent) 18%, transparent), transparent 70%),
+    radial-gradient(70% 60% at 50% 100%, color-mix(in oklch, var(--c-accent) 10%, transparent), transparent 70%);
+  --shadow-glow: 0 10px 40px -10px color-mix(in oklch, var(--c-accent) 45%, transparent);
+}
+
 @utility bg-gradient-gold {
   background-image: var(--gradient-gold);
 }
