@@ -1,0 +1,1 @@
+ALTER TABLE public.cards ALTER COLUMN theme SET DEFAULT 'royal';

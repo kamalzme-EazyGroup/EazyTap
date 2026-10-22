@@ -48,7 +48,7 @@ export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?:
   ].filter(Boolean) as { icon: typeof Phone; label: string; value: string; href: string }[];
 
   return (
-    <div data-card-theme={card.theme} className="w-full overflow-hidden rounded-[2rem] shadow-float">
+    <div data-card-theme={card.theme} data-card-font={card.font} className="w-full overflow-hidden rounded-[2rem] shadow-float">
       <div className="relative h-36 bg-card-cover">
         {card.cover_url && <img src={card.cover_url} alt="" className="absolute inset-0 h-full w-full object-cover" />}
       </div>

@@ -8,6 +8,20 @@
       "when": 1792666298122,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792669889347,
+      "tag": "0001_add_card_font",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792669935526,
+      "tag": "0002_default_theme_royal",
+      "breakpoints": true
     }
   ]
 }

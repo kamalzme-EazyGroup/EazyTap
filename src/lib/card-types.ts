@@ -33,7 +33,7 @@ export const DEFAULT_QR: QrSettings = {
   cornerType: "extra-rounded",
   fg: "#111111",
   bg: "#ffffff",
-  cornerColor: "#b8892f",
+  cornerColor: "#3b82f6",
   logo: null,
   logoSize: 0.3,
 };
@@ -54,6 +54,7 @@ export type CardData = {
   socials: Socials;
   custom_fields: CustomField[];
   theme: string;
+  font: string;
   qr_settings: QrSettings;
 };
 
@@ -74,6 +75,7 @@ export function rowToCard(row: Omit<CardRow, "user_id">): CardData {
     socials: (row.socials ?? {}) as Socials,
     custom_fields: Array.isArray(row.custom_fields) ? (row.custom_fields as CustomField[]) : [],
     theme: row.theme,
+    font: row.font ?? "classic",
     qr_settings: { ...DEFAULT_QR, ...((row.qr_settings ?? {}) as Partial<QrSettings>) },
   };
 }

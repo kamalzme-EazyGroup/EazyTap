@@ -24,7 +24,7 @@ const DEMO: CardData = {
   label: "Demo",
   full_name: "Kamal Sam",
   job_title: "Creative Director",
-  company: "Lumen Studio",
+  company: "EazyTap",
   bio: "Brand strategist crafting identities for hospitality and luxury brands.",
   phone: "+94 77 123 4567",
   email: "kamal@lumen.studio",
@@ -34,7 +34,8 @@ const DEMO: CardData = {
   cover_url: null,
   socials: { linkedin: "linkedin.com", instagram: "instagram.com", whatsapp: "+94771234567" },
   custom_fields: [],
-  theme: "obsidian",
+  theme: "royal",
+  font: "classic",
   qr_settings: DEFAULT_QR,
 };
 

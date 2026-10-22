@@ -24,6 +24,7 @@ export type Database = {
           created_at: string
           custom_fields: Json
           email: string | null
+          font: string
           full_name: string
           id: string
           job_title: string | null
@@ -46,6 +47,7 @@ export type Database = {
           created_at?: string
           custom_fields?: Json
           email?: string | null
+          font?: string
           full_name?: string
           id?: string
           job_title?: string | null
@@ -68,6 +70,7 @@ export type Database = {
           created_at?: string
           custom_fields?: Json
           email?: string | null
+          font?: string
           full_name?: string
           id?: string
           job_title?: string | null

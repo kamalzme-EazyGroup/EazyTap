@@ -13,7 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { CardView } from "@/components/CardView";
 import { StyledQR, type QRInstance } from "@/components/StyledQR";
 import { SOCIAL_KEYS, rowToCard, type CardData, type QrSettings } from "@/lib/card-types";
-import { CARD_THEMES } from "@/lib/themes";
+import { CARD_THEMES, CARD_FONTS } from "@/lib/themes";
 import { readFile } from "@/lib/image";
 import { CropDialog, type CropRequest } from "@/components/CropDialog";
 import { cn } from "@/lib/utils";
@@ -216,6 +216,20 @@ function Editor() {
                       <span className="text-sm font-medium">{t.name}</span>
                       <span className="h-4 w-4 rounded-full bg-c-accent" />
                     </div>
+                  </button>
+                ))}
+              </div>
+              <h3 className="mt-8 mb-3 text-lg">Font style</h3>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {CARD_FONTS.map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => set("font", f.id)}
+                    data-card-font={f.id}
+                    className={cn("rounded-2xl border-2 bg-card px-4 py-3 text-left transition", card.font === f.id ? "border-primary" : "border-border hover:border-primary/50")}
+                  >
+                    <div className="card-font-display text-2xl">Aa {f.name}</div>
+                    <div className="card-font-body text-xs text-muted-foreground">{f.sample}</div>
                   </button>
                 ))}
               </div>
