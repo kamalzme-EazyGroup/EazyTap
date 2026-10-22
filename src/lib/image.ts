@@ -45,7 +45,7 @@ export async function cropToDataUrl(
 }
 
 /** Return a PNG copy of the image with softly rounded corners (transparent outside). */
-export async function roundCorners(src: string, radiusRatio = 0.18) {
+export async function roundCorners(src: string, radiusRatio = 0.28) {
   const img = await loadImage(src);
   const w = img.width, h = img.height;
   const r = Math.min(w, h) * radiusRatio;

@@ -205,7 +205,9 @@ function Editor() {
                 {CARD_THEMES.map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => set("theme", t.id)}
+                    onClick={() =>
+                      setCard((c) => ({ ...c, theme: t.id, qr_settings: { ...c.qr_settings, cornerColor: t.swatch[1] } }))
+                    }
                     data-card-theme={t.id}
                     className={cn("overflow-hidden rounded-2xl border-2 text-left transition", card.theme === t.id ? "border-primary" : "border-transparent hover:border-border")}
                   >
