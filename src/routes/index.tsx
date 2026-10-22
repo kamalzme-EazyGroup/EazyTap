@@ -27,7 +27,7 @@ const DEMO: CardData = {
   company: "Lumen Studio",
   bio: "Brand strategist crafting identities for hospitality and luxury brands.",
   phone: "+94 77 123 4567",
-  email: "amara@lumen.studio",
+  email: "kamal@lumen.studio",
   website: "lumen.studio",
   address: null,
   avatar_url: null,
