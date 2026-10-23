@@ -237,6 +237,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_permission_matrix: {
+        Args: { p_permissions: Json; p_target: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "super_admin"
