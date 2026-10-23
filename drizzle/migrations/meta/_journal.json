@@ -43,6 +43,20 @@
       "when": 1792678996925,
       "tag": "0005_atomic_permission_management",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792724314458,
+      "tag": "0006_permission_matrix_payload",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792724470637,
+      "tag": "0007_template_link_permissions",
+      "breakpoints": true
     }
   ]
 }

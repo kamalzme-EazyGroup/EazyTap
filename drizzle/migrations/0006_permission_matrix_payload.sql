@@ -1,0 +1,3 @@
+CREATE FUNCTION public.set_permission_matrix(p_target jsonb,p_permissions jsonb) RETURNS void LANGUAGE plpgsql SECURITY INVOKER SET search_path=public AS $$ BEGIN PERFORM public.set_feature_permissions(NULLIF(p_target->>'userId','')::uuid,NULLIF(p_target->>'organizationId','')::uuid,p_permissions); END $$;
+REVOKE ALL ON FUNCTION public.set_permission_matrix(jsonb,jsonb) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.set_permission_matrix(jsonb,jsonb) TO authenticated;
