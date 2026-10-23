@@ -16,6 +16,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in or create your EazyTap account to build digital business cards." },
       { property: "og:title", content: "Sign in — EazyTap" },
       { property: "og:description", content: "Sign in to build your digital business cards." },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ],
   }),
   component: AuthPage,
