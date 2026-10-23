@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
-import { ACTIONS, FEATURES, emptyPermissions, type Permissions } from './permissions';
+import { ACTIONS, FEATURES, emptyPermissions } from './permissions';
 
 export const getAccess = createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async ({context}) => {
   const {data: isSuperAdmin,error} = await context.supabase.rpc('is_super_admin');
@@ -50,7 +50,7 @@ export const saveAdminPermissions = createServerFn({method:'POST'}).middleware([
       if(accountError) throw new Error('Unable to manage this account');
     }
     // One transaction prevents a partially saved permission matrix.
-    const {error:saveError} = await context.supabase.rpc('set_feature_permissions',{p_user_id:data.userId,p_organization_id:data.organizationId,p_permissions:data.permissions});
+    const {error:saveError} = await context.supabase.rpc('set_permission_matrix',{p_target:{userId:data.userId,organizationId:data.organizationId},p_permissions:data.permissions});
     if(saveError) throw new Error('Unable to save permissions');
     return {ok:true};
   });
@@ -62,7 +62,7 @@ export const createOrganization = createServerFn({method:'POST'}).middleware([re
     if(error || !allowed) throw new Error('Not permitted');
     const {data:org,error:e} = await context.supabase.from('organizations').insert({name:data.name}).select().single();
     if(e) throw new Error('Unable to create organization');
-    const {error:p} = await context.supabase.rpc('set_feature_permissions',{p_user_id:null,p_organization_id:org.id,p_permissions:emptyPermissions()});
+    const {error:p} = await context.supabase.rpc('set_permission_matrix',{p_target:{organizationId:org.id},p_permissions:emptyPermissions()});
     if(p) throw new Error('Organization created, but its permissions could not be saved');
     return org;
   });
@@ -93,7 +93,7 @@ export const createManagedUser = createServerFn({method:'POST'}).middleware([req
     const {error:e} = await context.supabase.from('managed_accounts').upsert({user_id:userId,email:data.email,organization_id:data.organizationId});
     if(e) throw new Error('Unable to save account membership');
     if(!data.organizationId) {
-      const {error:p} = await context.supabase.rpc('set_feature_permissions',{p_user_id:userId,p_organization_id:null,p_permissions:emptyPermissions()});
+      const {error:p} = await context.supabase.rpc('set_permission_matrix',{p_target:{userId},p_permissions:emptyPermissions()});
       if(p) throw new Error('Unable to set initial permissions');
     }
     return {userId,invited};

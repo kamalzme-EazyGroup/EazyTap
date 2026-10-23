@@ -17,12 +17,15 @@ import { CARD_THEMES, CARD_FONTS } from "@/lib/themes";
 import { readFile } from "@/lib/image";
 import { CropDialog, type CropRequest } from "@/components/CropDialog";
 import { cn } from "@/lib/utils";
+import { accessQuery } from "@/lib/access-query";
+import { can, customizationAction } from "@/lib/permissions";
 
 const cardQuery = (id: string) =>
   queryOptions({
     queryKey: ["card", id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("cards").select("*").eq("id", id).single();
+      const {data:u}=await supabase.auth.getUser(); if(!u.user) throw new Error("Sign in required");
+      const { data, error } = await supabase.from("cards").select("*").eq("id", id).eq("user_id",u.user.id).single();
       if (error) throw error;
       return data;
     },
@@ -35,11 +38,14 @@ export const Route = createFileRoute("/_authenticated/cards/$id")({
       { name: "description", content: "Design your digital business card and QR code." },
       { property: "og:title", content: "Edit card — EazyTap" },
       { property: "og:description", content: "Design your digital business card and QR code." },
+      {property:"og:type",content:"website"}, {name:"twitter:card",content:"summary_large_image"},
     ],
   }),
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(cardQuery(params.id)),
-  component: Editor,
+  loader: async ({ context, params }) => { const a=await context.queryClient.ensureQueryData(accessQuery);if(can(a,"cards","view")) await context.queryClient.ensureQueryData(cardQuery(params.id)); },
+  component: EditorPage,
 });
+
+function EditorPage(){const {data:a}=useSuspenseQuery(accessQuery);if(!can(a,"cards","view"))return <main className="p-8"><h1 className="text-3xl">Access restricted</h1><Button asChild className="mt-6"><Link to="/dashboard">My cards</Link></Button></main>;return <Editor/>;}
 
 const DOT_TYPES: QrSettings["dotsType"][] = ["square", "dots", "rounded", "classy", "classy-rounded", "extra-rounded"];
 const CORNER_TYPES: QrSettings["cornerType"][] = ["square", "dot", "extra-rounded"];
@@ -53,6 +59,7 @@ const QR_PRESETS: Pick<QrSettings, "fg" | "bg" | "cornerColor">[] = [
 ];
 
 function Editor() {
+  const {data:access}=useSuspenseQuery(accessQuery);
   const { id } = Route.useParams();
   const { data: row } = useSuspenseQuery(cardQuery(id));
   const qc = useQueryClient();
@@ -77,6 +84,9 @@ function Editor() {
   }, [card.theme]);
 
   const qrSettings = useMemo(() => card.qr_settings, [card.qr_settings]);
+  const original=rowToCard(row);
+  const editable=can(access,"cards","edit");
+  const qrEditable=editable&&can(access,"qr",Object.keys(row.qr_settings??{}).length===0?"add":"edit");
 
   async function save() {
     const slug = card.slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
@@ -84,7 +94,7 @@ function Editor() {
     setSaving(true);
     const { error } = await supabase
       .from("cards")
-      .update({ ...card, slug, custom_fields: card.custom_fields, socials: card.socials, qr_settings: card.qr_settings })
+      .update({ ...card, slug, custom_fields: card.custom_fields, socials: card.socials, qr_settings: JSON.stringify(original.qr_settings)===JSON.stringify(card.qr_settings)?row.qr_settings:card.qr_settings })
       .eq("id", id);
     setSaving(false);
     if (error) { toast.error(error.code === "23505" ? "That link is already taken" : error.message); return; }
@@ -113,7 +123,7 @@ function Editor() {
                 <ArrowLeft />
               </Link>
             </Button>
-            <Input value={card.label} onChange={(e) => set("label", e.target.value)} className="h-9 w-44 border-transparent bg-transparent font-display text-lg focus-visible:border-input" />
+            <Input disabled={!editable} value={card.label} onChange={(e) => set("label", e.target.value)} className="h-9 w-44 border-transparent bg-transparent font-display text-lg focus-visible:border-input" />
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="glass" size="sm" className="hidden sm:inline-flex">
@@ -121,7 +131,7 @@ function Editor() {
                 <ExternalLink /> Preview
               </a>
             </Button>
-            <Button variant="hero" onClick={save} disabled={saving}>
+            <Button variant="hero" onClick={save} disabled={saving||!editable}>
               {saving ? "Saving…" : "Save changes"}
             </Button>
           </div>
@@ -131,7 +141,7 @@ function Editor() {
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-8 lg:grid-cols-[1fr_400px]">
         <Tabs defaultValue="profile" className="min-w-0">
           <TabsList className="mb-6 flex h-auto flex-wrap justify-start gap-1 rounded-full bg-secondary p-1">
-            {["profile", "contact", "social", "fields", "theme", "qr"].map((t) => (
+            {["profile", "contact", "social", "fields", ...(can(access,"themes","view")||can(access,"fonts","view")?["theme"]:[]), ...(can(access,"qr","view")?["qr"]:[])].map((t) => (
               <TabsTrigger key={t} value={t} className="rounded-full px-4 capitalize data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 {t === "qr" ? "QR design" : t === "fields" ? "Custom fields" : t}
               </TabsTrigger>
@@ -139,7 +149,7 @@ function Editor() {
           </TabsList>
 
           <TabsContent value="profile">
-            <Panel>
+            <fieldset disabled={!editable}><Panel>
               <div className="grid gap-6 sm:grid-cols-2">
                 <ImagePicker label="Profile photo" value={card.avatar_url} round onPick={(f) => pickImage(f, { aspect: 1, round: true, maxSize: 400 }, (v) => set("avatar_url", v))} onClear={() => set("avatar_url", null)} />
                 <ImagePicker label="Cover image" value={card.cover_url} onPick={(f) => pickImage(f, { aspect: 384 / 144, maxSize: 1000 }, (v) => set("cover_url", v))} onClear={() => set("cover_url", null)} />
@@ -157,22 +167,22 @@ function Editor() {
                   <Button variant="ghost" size="icon" onClick={() => { navigator.clipboard.writeText(url); toast.success("Link copied"); }} aria-label="Copy link"><Copy /></Button>
                 </div>
               </Field>
-            </Panel>
+            </Panel></fieldset>
           </TabsContent>
 
           <TabsContent value="contact">
-            <Panel>
+            <fieldset disabled={!editable}><Panel>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Phone"><Input type="tel" value={card.phone ?? ""} onChange={(e) => set("phone", e.target.value)} placeholder="+94 77 123 4567" /></Field>
                 <Field label="Email"><Input type="email" value={card.email ?? ""} onChange={(e) => set("email", e.target.value)} /></Field>
               </div>
               <Field label="Website"><Input value={card.website ?? ""} onChange={(e) => set("website", e.target.value)} placeholder="yourcompany.com" /></Field>
               <Field label="Address"><Textarea rows={2} value={card.address ?? ""} onChange={(e) => set("address", e.target.value)} /></Field>
-            </Panel>
+            </Panel></fieldset>
           </TabsContent>
 
           <TabsContent value="social">
-            <Panel>
+            <fieldset disabled={!editable}><Panel>
               <div className="grid gap-4 sm:grid-cols-2">
                 {SOCIAL_KEYS.map((s) => (
                   <Field key={s.key} label={s.label}>
@@ -180,11 +190,11 @@ function Editor() {
                   </Field>
                 ))}
               </div>
-            </Panel>
+            </Panel></fieldset>
           </TabsContent>
 
           <TabsContent value="fields">
-            <Panel>
+            <fieldset disabled={!editable}><Panel>
               <p className="text-sm text-muted-foreground">Add anything else — office hours, licence number, second phone, etc.</p>
               {card.custom_fields.map((f, i) => (
                 <div key={i} className="flex items-end gap-3">
@@ -196,17 +206,18 @@ function Editor() {
               <Button variant="secondary" className="rounded-full" onClick={() => set("custom_fields", [...card.custom_fields, { label: "", value: "" }])}>
                 <Plus /> Add field
               </Button>
-            </Panel>
+            </Panel></fieldset>
           </TabsContent>
 
           <TabsContent value="theme">
             <Panel>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {can(access,"themes","view")&&<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {CARD_THEMES.map((t) => (
                   <button
                     key={t.id}
+                    disabled={!editable||!can(access,"themes",customizationAction(original.theme,t.id,"royal"))}
                     onClick={() =>
-                      setCard((c) => ({ ...c, theme: t.id, qr_settings: { ...c.qr_settings, cornerColor: t.swatch[1] } }))
+                      setCard((c) => ({ ...c, theme: t.id, qr_settings: qrEditable ? { ...c.qr_settings, cornerColor: t.swatch[1] } : c.qr_settings }))
                     }
                     data-card-theme={t.id}
                     className={cn("overflow-hidden rounded-2xl border-2 text-left transition", card.theme === t.id ? "border-primary" : "border-transparent hover:border-border")}
@@ -218,12 +229,13 @@ function Editor() {
                     </div>
                   </button>
                 ))}
-              </div>
-              <h3 className="mt-8 mb-3 text-lg">Font style</h3>
+              </div>}
+              {can(access,"fonts","view")&&<><h3 className="mt-8 mb-3 text-lg">Font style</h3>
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {CARD_FONTS.map((f) => (
                   <button
                     key={f.id}
+                    disabled={!editable||!can(access,"fonts",customizationAction(original.font,f.id,"classic"))}
                     onClick={() => set("font", f.id)}
                     data-card-font={f.id}
                     className={cn("rounded-2xl border-2 bg-card px-4 py-3 text-left transition", card.font === f.id ? "border-primary" : "border-border hover:border-primary/50")}
@@ -232,12 +244,12 @@ function Editor() {
                     <div className="card-font-body text-xs text-muted-foreground">{f.sample}</div>
                   </button>
                 ))}
-              </div>
+              </div></>}
             </Panel>
           </TabsContent>
 
           <TabsContent value="qr">
-            <Panel>
+            <fieldset disabled={!qrEditable}><Panel>
               <Field label="Colour presets">
                 <div className="flex flex-wrap gap-3">
                   {QR_PRESETS.map((p, i) => (
@@ -264,12 +276,12 @@ function Editor() {
                 <div className="flex items-center gap-3">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm hover:bg-accent">
                     <ImagePlus className="h-4 w-4" /> {qrSettings.logo ? "Replace logo" : "Upload logo"}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { pickImage(e.target.files?.[0], { aspect: 1, maxSize: 300, png: true }, (v) => setQr({ logo: v })); e.target.value = ""; }} />
+                    <input type="file" accept="image/*" className="hidden" disabled={!can(access,"qr",qrSettings.logo?"edit":"add")} onChange={(e) => { pickImage(e.target.files?.[0], { aspect: 1, maxSize: 300, png: true }, (v) => setQr({ logo: v })); e.target.value = ""; }} />
                   </label>
                   {qrSettings.logo && (
                     <>
                       <img src={qrSettings.logo} alt="Logo" className="h-10 w-10 rounded-lg bg-secondary object-contain" />
-                      <Button variant="ghost" size="sm" onClick={() => setQr({ logo: null })}><X /> Remove</Button>
+                      <Button variant="ghost" size="sm" disabled={!can(access,"qr","delete")} onClick={() => setQr({ logo: null })}><X /> Remove</Button>
                     </>
                   )}
                 </div>
@@ -279,7 +291,7 @@ function Editor() {
                   <Slider min={0.15} max={0.45} step={0.01} value={[qrSettings.logoSize]} onValueChange={([v]) => setQr({ logoSize: v ?? 0.3 })} />
                 </Field>
               )}
-            </Panel>
+            </Panel></fieldset>
           </TabsContent>
         </Tabs>
 
