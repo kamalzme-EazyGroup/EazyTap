@@ -214,6 +214,16 @@ function CardsDashboard() {
                         <Pencil /> {can(access, "cards", "edit") ? "Edit" : "Open"}
                       </Link>
                     </Button>
+                    {row.collect_contacts && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-full"
+                        onClick={() => setLeadsCard(row)}
+                      >
+                        <Users /> Leads
+                      </Button>
+                    )}
                     <Button asChild size="sm" variant="ghost" className="rounded-full">
                       <Link to="/c/$slug" params={{ slug: c.slug }} target="_blank">
                         <Eye /> View
@@ -236,6 +246,98 @@ function CardsDashboard() {
           </div>
         )}
       </main>
+      <LeadsDialog card={leadsCard} onClose={() => setLeadsCard(null)} />
     </div>
+  );
+}
+
+function LeadsDialog({ card, onClose }: { card: CardRow | null; onClose: () => void }) {
+  const canDelete = can(useSuspenseQuery(accessQuery).data, "cards", "delete");
+  const { data: leads } = useQuery({
+    queryKey: ["card-leads", card?.id],
+    queryFn: () => getCardLeads({ data: { cardId: card!.id } }),
+    enabled: !!card,
+  });
+  const qc = useQueryClient();
+  if (!card) return null;
+
+  const rows = leads ?? [];
+  const customLabels = [
+    ...new Set(rows.flatMap((l) => Object.keys((l.answers as Record<string, string>) ?? {}))),
+  ];
+
+  function downloadCsv() {
+    const csv = leadsToCsv(
+      rows.map((l) => ({ ...l, answers: (l.answers as Record<string, string>) ?? {} })),
+      customLabels,
+    );
+    downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${card!.slug}-leads.csv`);
+  }
+
+  async function removeLead(id: string) {
+    try {
+      await deleteLead({ data: { id } });
+      qc.invalidateQueries({ queryKey: ["card-leads", card!.id] });
+      toast.success("Contact removed");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Received contacts — {card!.label}</DialogTitle>
+        </DialogHeader>
+        {rows.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No one has shared their details yet.
+          </p>
+        ) : (
+          <>
+            <div className="flex justify-end">
+              <Button size="sm" variant="secondary" className="rounded-full" onClick={downloadCsv}>
+                <Download /> Download CSV ({rows.length})
+              </Button>
+            </div>
+            <ul className="mt-4 space-y-3">
+              {rows.map((l) => (
+                <li key={l.id} className="rounded-2xl border p-4 text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium">{l.name || "Unnamed"}</p>
+                      <p className="text-muted-foreground">
+                        {[l.email, l.phone, l.company].filter(Boolean).join(" · ")}
+                      </p>
+                      {l.message && <p className="mt-1 text-muted-foreground">{l.message}</p>}
+                      {Object.entries((l.answers as Record<string, string>) ?? {}).map(([k, v]) => (
+                        <p key={k} className="mt-1">
+                          <span className="text-muted-foreground">{k}:</span> {v}
+                        </p>
+                      ))}
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {new Date(l.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    {canDelete && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="shrink-0 rounded-full"
+                        onClick={() => removeLead(l.id)}
+                        aria-label="Delete contact"
+                      >
+                        <Trash2 />
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
