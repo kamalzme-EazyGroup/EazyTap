@@ -14,9 +14,11 @@ import {
   UserPlus,
   Youtube,
 } from "lucide-react";
-import type { ComponentType } from "react";
+import { useState, type ComponentType } from "react";
+import { toast } from "sonner";
 import { SOCIAL_KEYS, socialHref, type CardData, type SocialKey } from "@/lib/card-types";
 import { downloadVCard } from "@/lib/vcard";
+import { submitLead } from "@/lib/cards.functions";
 
 const ICONS: Record<SocialKey, ComponentType<{ className?: string }>> = {
   linkedin: Linkedin,
@@ -30,6 +32,9 @@ const ICONS: Record<SocialKey, ComponentType<{ className?: string }>> = {
   telegram: Send,
 };
 
+const STANDARD_KEYS = ["name", "email", "phone", "company", "message"] as const;
+type StandardKey = (typeof STANDARD_KEYS)[number];
+
 export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?: string | undefined; compact?: boolean | undefined }) {
   const initials = card.full_name
     .split(/\s+/)
@@ -39,6 +44,54 @@ export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?:
     .join("");
   const socials = SOCIAL_KEYS.filter((s) => card.socials[s.key]);
   const subtitle = [card.job_title, card.company].filter(Boolean).join(" · ");
+
+  // Lead capture: visitors share their details before saving the contact.
+  const collecting = !compact && card.collect_contacts;
+  const [unlocked, setUnlocked] = useState(!collecting);
+  const [sending, setSending] = useState(false);
+  const [lead, setLead] = useState<Record<StandardKey, string>>({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: "",
+  });
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  const fields = card.collect_fields.length > 0 ? card.collect_fields : [];
+  const customFields = fields.filter(
+    (f) => f.label && !STANDARD_KEYS.includes(f.label.toLowerCase() as StandardKey),
+  );
+  const standardShown = STANDARD_KEYS.filter((k) =>
+    fields.some((f) => f.label.toLowerCase() === k),
+  );
+  const requiredFor = (label: string) =>
+    fields.find((f) => f.label.toLowerCase() === label.toLowerCase())?.required ?? false;
+
+  async function shareAndSave() {
+    setSending(true);
+    try {
+      await submitLead({
+        data: {
+          slug: card.slug,
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          company: lead.company,
+          message: lead.message,
+          answers,
+        },
+      });
+    } catch (e) {
+      setSending(false);
+      toast.error((e as Error).message);
+      return;
+    }
+    setUnlocked(true);
+    setSending(false);
+    downloadVCard(card, pageUrl);
+    toast.success("Details shared — contact saved");
+  }
 
   const rows = [
     card.phone && { icon: Phone, label: "Phone", value: card.phone, href: `tel:${card.phone}` },
@@ -68,13 +121,68 @@ export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?:
         {subtitle && <p className="mt-1 text-sm text-c-muted">{subtitle}</p>}
         {card.bio && <p className="mt-4 text-sm leading-relaxed text-c-muted">{card.bio}</p>}
 
-        <button
-          type="button"
-          onClick={() => downloadVCard(card, pageUrl)}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-c-accent py-3.5 text-sm font-semibold text-c-accent-fg transition hover:opacity-90 active:scale-[0.98]"
-        >
-          <UserPlus className="h-4 w-4" /> Save to contacts
-        </button>
+        {collecting && !unlocked ? (
+          <form
+            className="mt-6 space-y-3 rounded-2xl bg-c-surface p-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              shareAndSave();
+            }}
+          >
+            <p className="text-sm font-medium">Share your details to save this contact</p>
+            {standardShown.map((key) => (
+              <label key={key} className="block">
+                <span className="mb-1 block text-[11px] uppercase tracking-wider text-c-muted">
+                  {key}
+                  {requiredFor(key) && " *"}
+                </span>
+                {key === "message" ? (
+                  <textarea
+                    rows={2}
+                    value={lead.message}
+                    onChange={(e) => setLead({ ...lead, message: e.target.value })}
+                    className="w-full rounded-xl bg-c-bg px-3 py-2 text-sm outline-none"
+                  />
+                ) : (
+                  <input
+                    type={key === "email" ? "email" : key === "phone" ? "tel" : "text"}
+                    value={lead[key]}
+                    onChange={(e) => setLead({ ...lead, [key]: e.target.value })}
+                    className="w-full rounded-xl bg-c-bg px-3 py-2 text-sm outline-none"
+                  />
+                )}
+              </label>
+            ))}
+            {customFields.map((f) => (
+              <label key={f.label} className="block">
+                <span className="mb-1 block text-[11px] uppercase tracking-wider text-c-muted">
+                  {f.label}
+                  {f.required && " *"}
+                </span>
+                <input
+                  value={answers[f.label] ?? ""}
+                  onChange={(e) => setAnswers({ ...answers, [f.label]: e.target.value })}
+                  className="w-full rounded-xl bg-c-bg px-3 py-2 text-sm outline-none"
+                />
+              </label>
+            ))}
+            <button
+              type="submit"
+              disabled={sending}
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-c-accent py-3.5 text-sm font-semibold text-c-accent-fg transition hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+            >
+              <UserPlus className="h-4 w-4" /> {sending ? "Sharing…" : "Share & save contact"}
+            </button>
+          </form>
+        ) : (
+          <button
+            type="button"
+            onClick={() => downloadVCard(card, pageUrl)}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-c-accent py-3.5 text-sm font-semibold text-c-accent-fg transition hover:opacity-90 active:scale-[0.98]"
+          >
+            <UserPlus className="h-4 w-4" /> Save to contacts
+          </button>
+        )}
 
         {!compact && rows.length > 0 && (
           <div className="mt-6 divide-y divide-c-line overflow-hidden rounded-2xl bg-c-surface">

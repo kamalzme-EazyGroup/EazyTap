@@ -40,6 +40,8 @@ const DEMO: CardData = {
   theme: "royal",
   font: "classic",
   qr_settings: DEFAULT_QR,
+  collect_contacts: false,
+  collect_fields: [],
 };
 
 function Index() {

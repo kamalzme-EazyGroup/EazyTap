@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      card_leads: {
+        Row: {
+          answers: Json
+          card_id: string
+          company: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          owner_id: string
+          phone: string
+        }
+        Insert: {
+          answers?: Json
+          card_id: string
+          company?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          owner_id: string
+          phone?: string
+        }
+        Update: {
+          answers?: Json
+          card_id?: string
+          company?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          owner_id?: string
+          phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_leads_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_templates: {
         Row: {
           created_at: string
@@ -46,6 +93,8 @@ export type Database = {
           address: string | null
           avatar_url: string | null
           bio: string | null
+          collect_contacts: boolean
+          collect_fields: Json
           company: string | null
           cover_url: string | null
           created_at: string
@@ -69,6 +118,8 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           bio?: string | null
+          collect_contacts?: boolean
+          collect_fields?: Json
           company?: string | null
           cover_url?: string | null
           created_at?: string
@@ -92,6 +143,8 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           bio?: string | null
+          collect_contacts?: boolean
+          collect_fields?: Json
           company?: string | null
           cover_url?: string | null
           created_at?: string

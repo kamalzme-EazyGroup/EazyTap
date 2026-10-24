@@ -57,6 +57,13 @@
       "when": 1792724470637,
       "tag": "0007_template_link_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792832965806,
+      "tag": "0008_card_lead_capture",
+      "breakpoints": true
     }
   ]
 }

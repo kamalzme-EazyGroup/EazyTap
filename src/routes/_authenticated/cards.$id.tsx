@@ -10,9 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CardView } from "@/components/CardView";
 import { StyledQR, type QRInstance } from "@/components/StyledQR";
-import { SOCIAL_KEYS, rowToCard, type CardData, type QrSettings } from "@/lib/card-types";
+import { SOCIAL_KEYS, rowToCard, type CardData, type LeadField, type QrSettings } from "@/lib/card-types";
 import { CARD_THEMES, CARD_FONTS } from "@/lib/themes";
 import { readFile } from "@/lib/image";
 import { CropDialog, type CropRequest } from "@/components/CropDialog";
@@ -205,6 +207,7 @@ function Editor() {
               "contact",
               "social",
               "fields",
+              "collect",
               ...(can(access, "themes", "view") || can(access, "fonts", "view") ? ["theme"] : []),
               ...(can(access, "qr", "view") ? ["qr"] : []),
             ].map((t) => (
@@ -213,7 +216,7 @@ function Editor() {
                 value={t}
                 className="rounded-full px-4 capitalize data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                {t === "qr" ? "QR design" : t === "fields" ? "Custom fields" : t}
+                {t === "qr" ? "QR design" : t === "fields" ? "Custom fields" : t === "collect" ? "Data collection" : t}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -412,6 +415,93 @@ function Editor() {
                 >
                   <Plus /> Add field
                 </Button>
+              </Panel>
+            </fieldset>
+          </TabsContent>
+
+          <TabsContent value="collect">
+            <fieldset disabled={!editable}>
+              <Panel>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-medium">Collect visitor details</p>
+                    <p className="text-sm text-muted-foreground">
+                      Visitors share their details before they can save your contact. You can view
+                      and download submissions from your dashboard.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={card.collect_contacts}
+                    onCheckedChange={(v) => set("collect_contacts", v)}
+                    aria-label="Enable data collection"
+                  />
+                </div>
+
+                {card.collect_contacts && (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Choose what visitors fill in. Name, Email, Phone, Company and Message are
+                      standard fields — add your own below.
+                    </p>
+                    {card.collect_fields.map((f, i) => (
+                      <div key={i} className="flex items-end gap-3">
+                        <Field label="Field label" className="flex-1">
+                          <Input
+                            value={f.label}
+                            placeholder="e.g. How did we meet?"
+                            onChange={(e) =>
+                              set(
+                                "collect_fields",
+                                card.collect_fields.map((x, j) =>
+                                  j === i ? { ...x, label: e.target.value } : x,
+                                ),
+                              )
+                            }
+                          />
+                        </Field>
+                        <label className="flex items-center gap-2 pb-2.5 text-sm text-muted-foreground">
+                          <Checkbox
+                            checked={f.required}
+                            onCheckedChange={(v) =>
+                              set(
+                                "collect_fields",
+                                card.collect_fields.map((x, j) =>
+                                  j === i ? { ...x, required: v === true } : x,
+                                ),
+                              )
+                            }
+                          />
+                          Required
+                        </label>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            set(
+                              "collect_fields",
+                              card.collect_fields.filter((_, j) => j !== i),
+                            )
+                          }
+                          aria-label="Remove"
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant="secondary"
+                      className="rounded-full"
+                      onClick={() =>
+                        set("collect_fields", [
+                          ...card.collect_fields,
+                          { label: "", required: false } satisfies LeadField,
+                        ])
+                      }
+                    >
+                      <Plus /> Add field
+                    </Button>
+                  </>
+                )}
               </Panel>
             </fieldset>
           </TabsContent>
