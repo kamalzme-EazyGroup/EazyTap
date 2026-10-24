@@ -1,15 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Eye, LogOut, Pencil, Plus, Trash2, ShieldCheck, LayoutTemplate } from "lucide-react";
+import { Download, Eye, LogOut, Pencil, Plus, Trash2, ShieldCheck, LayoutTemplate, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Logo } from "@/components/Logo";
 import { StyledQR } from "@/components/StyledQR";
-import { randomSlug, rowToCard } from "@/lib/card-types";
+import { randomSlug, rowToCard, type CardRow } from "@/lib/card-types";
 import { accessQuery } from "@/lib/access-query";
 import { can } from "@/lib/permissions";
+import { deleteLead, getCardLeads } from "@/lib/cards.functions";
+import { leadsToCsv } from "@/lib/leads-csv";
+import { downloadBlob } from "@/lib/download";
 
 const cardsQuery = queryOptions({
   queryKey: ["my-cards"],
@@ -80,6 +89,7 @@ function CardsDashboard() {
   const navigate = useNavigate();
   const { user } = Route.useRouteContext();
   const [creating, setCreating] = useState(false);
+  const [leadsCard, setLeadsCard] = useState<CardRow | null>(null);
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   async function createCard() {
