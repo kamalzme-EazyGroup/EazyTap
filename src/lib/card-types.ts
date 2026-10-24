@@ -17,6 +17,13 @@ export const SOCIAL_KEYS = [
 export type SocialKey = (typeof SOCIAL_KEYS)[number]["key"];
 export type Socials = Partial<Record<SocialKey, string>>;
 export type CustomField = { label: string; value: string };
+export type LeadField = { label: string; required: boolean };
+
+export const DEFAULT_LEAD_FIELDS: LeadField[] = [
+  { label: "Name", required: true },
+  { label: "Email", required: true },
+  { label: "Phone", required: false },
+];
 
 export type QrSettings = {
   dotsType: "square" | "dots" | "rounded" | "classy" | "classy-rounded" | "extra-rounded";
@@ -56,6 +63,8 @@ export type CardData = {
   theme: string;
   font: string;
   qr_settings: QrSettings;
+  collect_contacts: boolean;
+  collect_fields: LeadField[];
 };
 
 export function rowToCard(row: Omit<CardRow, "user_id">): CardData {
@@ -77,6 +86,10 @@ export function rowToCard(row: Omit<CardRow, "user_id">): CardData {
     theme: row.theme,
     font: row.font ?? "classic",
     qr_settings: { ...DEFAULT_QR, ...((row.qr_settings ?? {}) as Partial<QrSettings>) },
+    collect_contacts: row.collect_contacts ?? false,
+    collect_fields: Array.isArray(row.collect_fields)
+      ? (row.collect_fields as LeadField[]).filter((f) => f && typeof f.label === "string")
+      : [],
   };
 }
 
