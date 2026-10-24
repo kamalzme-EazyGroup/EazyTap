@@ -40,6 +40,6 @@ describe("leadsToCsv", () => {
       ],
       ["Budget"],
     );
-    expect(csv.split("\r\n")[1].endsWith(",")).toBe(true);
+    expect(csv.split("\r\n")[1]?.endsWith(",")).toBe(true);
   });
 });
