@@ -170,6 +170,14 @@
 [data-card-font] h1, [data-card-font] h2, [data-card-font] h3, [data-card-font] .font-display, .card-font-display { font-family: var(--cf-display); }
 .card-font-body { font-family: var(--cf-body); }
 
+/* ---------- Site-wide font (super admin site settings) ---------- */
+html[data-site-font="classic"] { --font-sans: "Manrope", system-ui, sans-serif; --font-display: "Fraunces", Georgia, serif; }
+html[data-site-font="modern"] { --font-sans: "DM Sans", sans-serif; --font-display: "Space Grotesk", sans-serif; }
+html[data-site-font="elegant"] { --font-sans: "Lato", sans-serif; --font-display: "Playfair Display", serif; }
+html[data-site-font="friendly"] { --font-sans: "Nunito", sans-serif; --font-display: "Nunito", sans-serif; }
+html[data-site-font="bold"] { --font-sans: "Barlow", sans-serif; --font-display: "Bebas Neue", sans-serif; }
+html[data-site-font="tech"] { --font-sans: "Rubik", sans-serif; --font-display: "JetBrains Mono", monospace; }
+
 /* Whole-app theming: <html data-app-theme data-card-theme="..."> maps card tokens onto platform tokens */
 html[data-app-theme] {
   --background: var(--c-bg);
