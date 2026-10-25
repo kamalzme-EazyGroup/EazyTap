@@ -432,7 +432,16 @@ function Editor() {
                   </div>
                   <Switch
                     checked={card.collect_contacts}
-                    onCheckedChange={(v) => set("collect_contacts", v)}
+                    onCheckedChange={(v) =>
+                      setCard((c) => ({
+                        ...c,
+                        collect_contacts: v,
+                        collect_fields:
+                          v && c.collect_fields.length === 0
+                            ? DEFAULT_LEAD_FIELDS
+                            : c.collect_fields,
+                      }))
+                    }
                     aria-label="Enable data collection"
                   />
                 </div>
