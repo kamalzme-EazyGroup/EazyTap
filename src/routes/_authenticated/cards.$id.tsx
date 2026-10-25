@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CardView } from "@/components/CardView";
 import { StyledQR, type QRInstance } from "@/components/StyledQR";
-import { SOCIAL_KEYS, rowToCard, type CardData, type LeadField, type QrSettings } from "@/lib/card-types";
+import { DEFAULT_LEAD_FIELDS, SOCIAL_KEYS, rowToCard, type CardData, type LeadField, type QrSettings } from "@/lib/card-types";
 import { CARD_THEMES, CARD_FONTS } from "@/lib/themes";
 import { readFile } from "@/lib/image";
 import { CropDialog, type CropRequest } from "@/components/CropDialog";
