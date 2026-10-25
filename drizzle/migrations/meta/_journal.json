@@ -64,6 +64,13 @@
       "when": 1792832965806,
       "tag": "0008_card_lead_capture",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792926074772,
+      "tag": "0009_site_settings",
+      "breakpoints": true
     }
   ]
 }

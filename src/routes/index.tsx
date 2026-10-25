@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Palette, QrCode, Smartphone, UserPlus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, Mail, MapPin, Megaphone, Palette, Phone, QrCode, Smartphone, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardView } from "@/components/CardView";
 import { StyledQR } from "@/components/StyledQR";
@@ -7,6 +8,7 @@ import { Logo } from "@/components/Logo";
 import demoAvatar from "@/assets/demo-avatar.jpg";
 import { DEFAULT_QR, type CardData } from "@/lib/card-types";
 import { useSession } from "@/hooks/use-session";
+import { siteSettingsQuery } from "@/lib/site.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,7 +48,10 @@ const DEMO: CardData = {
 
 function Index() {
   const { session } = useSession();
+  const { data: settings } = useQuery(siteSettingsQuery);
   const cta = session ? "/dashboard" : "/auth";
+  const contact = settings?.contact;
+  const hasContact = !!(contact && (contact.email || contact.phone || contact.address));
   return (
     <div className="min-h-screen overflow-hidden bg-aurora grain">
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
@@ -55,6 +60,25 @@ function Index() {
           <Link to={cta}>{session ? "My cards" : "Sign in"}</Link>
         </Button>
       </header>
+
+      {settings?.announcement.enabled && settings.announcement.text && (
+        <div className="relative z-10 mx-auto max-w-6xl px-6">
+          <div className="flex items-center justify-center gap-2 rounded-full glass px-5 py-2.5 text-sm">
+            <Megaphone className="h-4 w-4 shrink-0 text-primary" />
+            <span>{settings.announcement.text}</span>
+            {settings.announcement.link && (
+              <a
+                href={/^https?:\/\//i.test(settings.announcement.link) ? settings.announcement.link : `https://${settings.announcement.link}`}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 font-medium text-primary hover:underline"
+              >
+                Learn more
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       <main className="relative z-10 mx-auto grid max-w-6xl items-center gap-16 px-6 pb-24 pt-10 lg:grid-cols-2">
         <div>
@@ -100,6 +124,31 @@ function Index() {
           </div>
         </div>
       </main>
+
+      {hasContact && (
+        <section className="relative z-10 border-t border-border/50">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <h2 className="text-2xl">Get in touch</h2>
+            <div className="mt-6 flex flex-wrap gap-4">
+              {contact!.email && (
+                <a href={`mailto:${contact!.email}`} className="flex items-center gap-3 rounded-2xl glass px-5 py-4 text-sm transition hover:opacity-80">
+                  <Mail className="h-4 w-4 text-primary" /> {contact!.email}
+                </a>
+              )}
+              {contact!.phone && (
+                <a href={`tel:${contact!.phone}`} className="flex items-center gap-3 rounded-2xl glass px-5 py-4 text-sm transition hover:opacity-80">
+                  <Phone className="h-4 w-4 text-primary" /> {contact!.phone}
+                </a>
+              )}
+              {contact!.address && (
+                <span className="flex items-center gap-3 rounded-2xl glass px-5 py-4 text-sm">
+                  <MapPin className="h-4 w-4 text-primary" /> {contact!.address}
+                </span>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
