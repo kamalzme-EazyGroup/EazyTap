@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
 import { toast } from "sonner";
-import { SOCIAL_KEYS, socialHref, type CardData, type SocialKey } from "@/lib/card-types";
+import { DEFAULT_LEAD_FIELDS, SOCIAL_KEYS, socialHref, type CardData, type SocialKey } from "@/lib/card-types";
 import { downloadVCard } from "@/lib/vcard";
 import { submitLead } from "@/lib/cards.functions";
 
@@ -58,7 +58,7 @@ export function CardView({ card, pageUrl, compact }: { card: CardData; pageUrl?:
   });
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  const fields = card.collect_fields.length > 0 ? card.collect_fields : [];
+  const fields = card.collect_fields.length > 0 ? card.collect_fields : DEFAULT_LEAD_FIELDS;
   const customFields = fields.filter(
     (f) => f.label && !STANDARD_KEYS.includes(f.label.toLowerCase() as StandardKey),
   );
