@@ -124,6 +124,31 @@ function Index() {
           </div>
         </div>
       </main>
+
+      {hasContact && (
+        <section className="relative z-10 border-t border-border/50">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <h2 className="text-2xl">Get in touch</h2>
+            <div className="mt-6 flex flex-wrap gap-4">
+              {contact!.email && (
+                <a href={`mailto:${contact!.email}`} className="flex items-center gap-3 rounded-2xl glass px-5 py-4 text-sm transition hover:opacity-80">
+                  <Mail className="h-4 w-4 text-primary" /> {contact!.email}
+                </a>
+              )}
+              {contact!.phone && (
+                <a href={`tel:${contact!.phone}`} className="flex items-center gap-3 rounded-2xl glass px-5 py-4 text-sm transition hover:opacity-80">
+                  <Phone className="h-4 w-4 text-primary" /> {contact!.phone}
+                </a>
+              )}
+              {contact!.address && (
+                <span className="flex items-center gap-3 rounded-2xl glass px-5 py-4 text-sm">
+                  <MapPin className="h-4 w-4 text-primary" /> {contact!.address}
+                </span>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
