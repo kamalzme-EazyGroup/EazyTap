@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { siteSettingsQuery } from "@/lib/site.functions";
 
 function NotFoundComponent() {
   return (
@@ -94,6 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(siteSettingsQuery),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -117,6 +119,19 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const { data: settings } = useQuery(siteSettingsQuery);
+
+  // Super-admin site settings: site-wide colours and font.
+  useEffect(() => {
+    const el = document.documentElement;
+    const setVar = (k: string, v: string) =>
+      v ? el.style.setProperty(k, v) : el.style.removeProperty(k);
+    setVar("--primary", settings?.colors.primary ?? "");
+    setVar("--ring", settings?.colors.primary ?? "");
+    setVar("--background", settings?.colors.background ?? "");
+    if (settings?.font) el.setAttribute("data-site-font", settings.font);
+    else el.removeAttribute("data-site-font");
+  }, [settings]);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
