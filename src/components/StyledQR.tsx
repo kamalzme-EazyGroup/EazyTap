@@ -38,7 +38,7 @@ export function StyledQR({
   settings: QrSettings;
   size?: number;
   onReady?: (qr: QRInstance) => void;
-  onRendered?: () => void;
+  onRendered?: (() => void) | undefined;
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
