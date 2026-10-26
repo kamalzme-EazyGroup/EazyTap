@@ -371,3 +371,208 @@ function AdminConsole() {
     </div>
   );
 }
+
+function SiteSettingsPanel() {
+  const { data: saved } = useSuspenseQuery(siteSettingsQuery);
+  const qc = useQueryClient();
+  const save = useServerFn(saveSiteSettings);
+  const [s, setS] = useState<SiteSettings>(saved);
+  const [busy, setBusy] = useState(false);
+  const set = <K extends keyof SiteSettings>(k: K, v: SiteSettings[K]) =>
+    setS((x) => ({ ...x, [k]: v }));
+
+  async function submit() {
+    setBusy(true);
+    try {
+      await save({ data: s });
+      await qc.invalidateQueries({ queryKey: ["site-settings"] });
+      toast.success("Website settings saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Unable to save");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      <section className="space-y-4 rounded-3xl border bg-card p-6">
+        <h3 className="text-lg">Branding</h3>
+        <div className="flex items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border bg-secondary">
+            {s.logo_url ? (
+              <img src={s.logo_url} alt="Site logo" className="h-full w-full object-contain" />
+            ) : (
+              <ImagePlus className="h-5 w-5 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm hover:bg-accent">
+              <ImagePlus className="h-4 w-4" /> {s.logo_url ? "Replace logo" : "Upload logo"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  e.target.value = "";
+                  if (!f) return;
+                  try {
+                    set("logo_url", await fileToDataUrl(f, 200, "image/png"));
+                  } catch (err) {
+                    toast.error((err as Error).message);
+                  }
+                }}
+              />
+            </label>
+            {s.logo_url && (
+              <Button variant="ghost" size="sm" onClick={() => set("logo_url", null)}>
+                <X /> Use default
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Site name</Label>
+          <Input
+            value={s.site_name}
+            onChange={(e) => set("site_name", e.target.value)}
+            placeholder={DEFAULT_SITE_SETTINGS.site_name}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-3xl border bg-card p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg">Announcement banner</h3>
+            <p className="text-sm text-muted-foreground">
+              Show a message at the top of the home page — new features, launches, offers.
+            </p>
+          </div>
+          <Switch
+            checked={s.announcement.enabled}
+            onCheckedChange={(v) => set("announcement", { ...s.announcement, enabled: v })}
+            aria-label="Enable announcement"
+          />
+        </div>
+        {s.announcement.enabled && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Message</Label>
+              <Input
+                value={s.announcement.text}
+                onChange={(e) => set("announcement", { ...s.announcement, text: e.target.value })}
+                placeholder="New: lead capture is here!"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Link (optional)</Label>
+              <Input
+                value={s.announcement.link}
+                onChange={(e) => set("announcement", { ...s.announcement, link: e.target.value })}
+                placeholder="https://…"
+              />
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-4 rounded-3xl border bg-card p-6">
+        <h3 className="text-lg">Colours & font</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {(
+            [
+              ["primary", "Main colour (buttons, highlights)"],
+              ["background", "Page background"],
+            ] as const
+          ).map(([key, label]) => (
+            <div key={key} className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
+              <div className="flex items-center gap-2 rounded-md border px-2">
+                <input
+                  type="color"
+                  aria-label={label}
+                  value={s.colors[key] || (key === "primary" ? "#3b82f6" : "#101527")}
+                  onChange={(e) => set("colors", { ...s.colors, [key]: e.target.value })}
+                  className="h-8 w-8 cursor-pointer rounded border-0 bg-transparent"
+                />
+                <Input
+                  value={s.colors[key]}
+                  onChange={(e) => set("colors", { ...s.colors, [key]: e.target.value })}
+                  placeholder="Default"
+                  className="border-0 px-1 shadow-none focus-visible:ring-0"
+                />
+                {s.colors[key] && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Reset to default"
+                    onClick={() => set("colors", { ...s.colors, [key]: "" })}
+                  >
+                    <X />
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Site font</Label>
+          <Select value={s.font || "default"} onValueChange={(v) => set("font", v === "default" ? "" : v)}>
+            <SelectTrigger aria-label="Site font" className="w-full sm:w-72">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default (Fraunces + Manrope)</SelectItem>
+              {CARD_FONTS.map((f) => (
+                <SelectItem key={f.id} value={f.id}>
+                  {f.name} — {f.sample}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-3xl border bg-card p-6">
+        <h3 className="text-lg">Contact details</h3>
+        <p className="text-sm text-muted-foreground">
+          Shown in a "Get in touch" section at the bottom of the home page. Leave blank to hide.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Email</Label>
+            <Input
+              type="email"
+              value={s.contact.email}
+              onChange={(e) => set("contact", { ...s.contact, email: e.target.value })}
+              placeholder="hello@eazytap.com"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Phone</Label>
+            <Input
+              type="tel"
+              value={s.contact.phone}
+              onChange={(e) => set("contact", { ...s.contact, phone: e.target.value })}
+              placeholder="+94 77 123 4567"
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Address</Label>
+          <Input
+            value={s.contact.address}
+            onChange={(e) => set("contact", { ...s.contact, address: e.target.value })}
+            placeholder="Colombo, Sri Lanka"
+          />
+        </div>
+      </section>
+
+      <Button onClick={submit} disabled={busy}>
+        <Save /> {busy ? "Saving…" : "Save website settings"}
+      </Button>
+    </div>
+  );
+}
