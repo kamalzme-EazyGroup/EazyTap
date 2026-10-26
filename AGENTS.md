@@ -16,3 +16,4 @@
 - Feature permissions are enforced by database policies/triggers and mirrored by the shared access query; user overrides take precedence over organization grants, managed accounts default to denied, and unmanaged existing accounts retain access for compatibility.
 - Saved business card templates use owner-scoped card_templates and a fixed-format themed BusinessCard renderer; PNG generation happens before a separate download click to preserve browser user activation.
 - Lead capture: cards.collect_contacts/collect_fields configure a pre-save visitor form; submissions go to card_leads via an anon INSERT policy limited to collecting cards, and owners read/delete them through authenticated server functions.
+- Site settings live in the single-row site_settings table (publicly readable, super-admin writable); the root loader fetches them and applies colours/font on <html>, while Logo and the home page render logo, name, announcement and contact details from them.
