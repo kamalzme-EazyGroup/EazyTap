@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Building2, Users, ShieldCheck, Plus, ArrowLeft, Save } from "lucide-react";
+import { Building2, Users, ShieldCheck, Plus, ArrowLeft, Save, Globe, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -22,6 +23,10 @@ import {
   createManagedUser,
   saveAdminPermissions,
 } from "@/lib/admin.functions";
+import { saveSiteSettings, siteSettingsQuery } from "@/lib/site.functions";
+import { DEFAULT_SITE_SETTINGS, type SiteSettings } from "@/lib/site-settings";
+import { CARD_FONTS } from "@/lib/themes";
+import { fileToDataUrl } from "@/lib/image";
 import { accessQuery } from "@/lib/access-query";
 import { ACTIONS, FEATURES, emptyPermissions, type Permissions } from "@/lib/permissions";
 
@@ -65,7 +70,7 @@ function AdminConsole() {
   const createOrg = useServerFn(createOrganization),
     createUser = useServerFn(createManagedUser),
     savePermissions = useServerFn(saveAdminPermissions);
-  const [tab, setTab] = useState<"users" | "organizations">("users");
+  const [tab, setTab] = useState<"users" | "organizations" | "website">("users");
   const [orgName, setOrgName] = useState(""),
     [email, setEmail] = useState(""),
     [orgId, setOrgId] = useState("individual");
