@@ -181,6 +181,7 @@ function AdminConsole() {
               </Button>
             </div>
             {tab === "website" && <SiteSettingsPanel />}
+            {tab !== "website" && (<>
             {tab === "organizations" ? (
               <form
                 className="mb-6 flex gap-2"
@@ -294,6 +295,7 @@ function AdminConsole() {
                 <p className="py-8 text-sm text-muted-foreground">No {tab} yet</p>
               )}
             </div>
+            </>)}
           </section>
           <section className="min-w-0 lg:border-l lg:pl-10">
             <h2 className="text-2xl">Feature permissions</h2>
