@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { ArrowLeft, Plus, Save, Trash2, Download, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ import { readFile } from "@/lib/image";
 import { supabase } from "@/integrations/supabase/client";
 import { accessQuery } from "@/lib/access-query";
 import { can, customizationAction } from "@/lib/permissions";
-import { templateDesignSchema, newDesign, type TemplateDesign } from "@/lib/template-types";
+import { templateDesignSchema, newDesign, linkedQrSettings, type TemplateDesign } from "@/lib/template-types";
 import { CARD_THEMES, CARD_FONTS } from "@/lib/themes";
 import { downloadBlob } from "@/lib/download";
 
@@ -46,7 +46,7 @@ const linksQuery = queryOptions({
     if (!u.user) throw new Error("Sign in required");
     const { data, error } = await supabase
       .from("cards")
-      .select("slug,label")
+       .select("slug,label,qr_settings")
       .eq("user_id", u.user.id);
     if (error) throw error;
     return data;
@@ -99,6 +99,11 @@ function TemplateStudio() {
     [png, setPng] = useState<Blob | null>(null),
     [crop, setCrop] = useState<CropRequest | null>(null);
   const preview = useRef<HTMLDivElement>(null);
+  const linkedCard = links.find((card) => card.slug === design.cardSlug);
+  const qrSettings = useMemo(() => linkedQrSettings(linkedCard?.qr_settings), [linkedCard?.qr_settings]);
+  const qrKey = JSON.stringify([design.cardSlug, qrSettings]);
+  const [qrReadyKey, setQrReadyKey] = useState<string | null>(null);
+  const qrReady = !design.cardSlug || qrReadyKey === qrKey;
   const editable = can(access, "templates", id ? "edit" : "add");
   function change<K extends keyof TemplateDesign>(key: K, value: TemplateDesign[K]) {
     setPng(null);
@@ -140,7 +145,7 @@ function TemplateStudio() {
     }
   }
   async function prepare() {
-    if (!preview.current) return;
+    if (!preview.current || !qrReady) return;
     setBusy(true);
     try {
       await document.fonts.ready;
@@ -246,7 +251,7 @@ function TemplateStudio() {
                   Download PNG
                 </Button>
               ) : (
-                <Button variant="outline" disabled={busy} onClick={prepare}>
+                 <Button variant="outline" disabled={busy || !qrReady} onClick={prepare}>
                   <Download />
                   {busy ? "Preparing…" : "Prepare PNG"}
                 </Button>
@@ -254,12 +259,15 @@ function TemplateStudio() {
             </div>
             <div className="mb-8 overflow-x-auto">
               <div ref={preview} className="w-[680px]">
-                <BusinessCard design={design} />
+                 <BusinessCard design={design} qrSettings={qrSettings} onQrRendered={() => {
+                   setQrReadyKey(qrKey);
+                   setPng(null);
+                 }} />
               </div>
             </div>
             <fieldset disabled={!editable} className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {(
-                ["fullName", "title", "company", "phone", "email", "website", "tagline"] as const
+                 ["fullName", "title", "company", "companyAddress", "phone", "email", "website", "tagline"] as const
               ).map((k) => (
                 <div key={k} className="space-y-2">
                   <Label htmlFor={`template-${k}`}>
@@ -267,7 +275,8 @@ function TemplateStudio() {
                       {
                         fullName: "Full name",
                         title: "Job title",
-                        company: "Company",
+                         company: "Company name",
+                         companyAddress: "Company address",
                         phone: "Phone",
                         email: "Email",
                         website: "Website",
@@ -277,7 +286,7 @@ function TemplateStudio() {
                   </Label>
                   <Input
                     id={`template-${k}`}
-                    maxLength={k === "phone" ? 60 : 120}
+                     maxLength={k === "phone" ? 60 : k === "companyAddress" || k === "website" ? 200 : k === "email" || k === "tagline" ? 160 : 120}
                     value={design[k]}
                     onChange={(e) => change(k, e.target.value)}
                   />

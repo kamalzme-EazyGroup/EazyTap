@@ -6,6 +6,7 @@ type QRInstance = {
   append: (el: HTMLElement) => void;
   update: (o: object) => void;
   download: (o: { name: string; extension: "png" | "svg" }) => Promise<void>;
+  getRawData: (extension: "png") => Promise<Blob | null>;
 };
 
 function buildOptions(data: string, s: QrSettings, size: number) {
@@ -30,12 +31,14 @@ export function StyledQR({
   settings,
   size = 240,
   onReady,
+  onRendered,
   className,
 }: {
   data: string;
   settings: QrSettings;
   size?: number;
   onReady?: (qr: QRInstance) => void;
+  onRendered?: (() => void) | undefined;
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -58,6 +61,10 @@ export function StyledQR({
         onReady?.(qr);
       } else {
         qrRef.current.update(opts);
+      }
+      if (onRendered) {
+        await qrRef.current.getRawData("png");
+        if (!cancelled) onRendered();
       }
     })();
     return () => {
