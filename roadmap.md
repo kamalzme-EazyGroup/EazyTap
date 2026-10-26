@@ -1,6 +1,5 @@
-# EazyTap lead capture
-- [x] Add data-collection toggle and custom lead fields to cards (database).
-- [x] Card editor: enable/disable data collection and define custom fields.
-- [x] Public card page: visitors share their details before saving the contact.
-- [x] Dashboard: view and download (CSV) received contact details per card.
-- [x] Test and verify the end-to-end flow.
+# EazyTap site settings (super admin)
+- [x] Store site settings in the database (single-row, publicly readable, super-admin editable).
+- [x] Admin console "Website" tab: logo, site name, announcement banner, colours, font, contact details.
+- [x] Apply settings site-wide (logo/wordmark, colours, font) and on the home page (banner, contact section).
+- [ ] Verify the end-to-end flow in the preview.
