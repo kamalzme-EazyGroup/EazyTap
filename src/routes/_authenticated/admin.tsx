@@ -172,7 +172,15 @@ function AdminConsole() {
                 <Building2 />
                 Organizations
               </Button>
+              <Button
+                variant={tab === "website" ? "secondary" : "ghost"}
+                onClick={() => setTab("website")}
+              >
+                <Globe />
+                Website
+              </Button>
             </div>
+            {tab === "website" && <SiteSettingsPanel />}
             {tab === "organizations" ? (
               <form
                 className="mb-6 flex gap-2"
