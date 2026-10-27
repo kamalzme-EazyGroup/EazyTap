@@ -61,6 +61,7 @@
 
 :root {
   --radius: 0.875rem;
+  --qr-paper: #ffffff;
   --background: oklch(0.15 0.03 255);
   --foreground: oklch(0.97 0.01 240);
   --card: oklch(0.19 0.04 255);
@@ -276,10 +277,12 @@ html[data-app-theme] {
 .business-card-name { font-size: 32px; line-height: 1.15; overflow-wrap: anywhere; }
 .business-card-title { font-size: 14px; margin-top: 8px; color: var(--c-muted); overflow-wrap: anywhere; }
 .business-card-tagline { font-size: 12px; margin-top: auto; padding-top: 12px; color: var(--c-muted); overflow-wrap: anywhere; }
-.business-card-details { display: flex; width: 180px; flex-shrink: 0; flex-direction: column; align-items: flex-end; justify-content: flex-end; gap: 16px; }
-.business-card-qr { overflow: hidden; }
+.business-card-details { display: flex; width: 180px; flex-shrink: 0; flex-direction: column; align-items: flex-end; justify-content: flex-start; gap: 16px; }
+.business-card-identity:has(.business-card-avatar) + .business-card-details { padding-top: 76px; }
+.business-card-qr { overflow: hidden; padding: 4px; background: var(--qr-paper); border-radius: 4px; }
 .business-card-contact { font-size: 12px; line-height: 1.6; margin-top: 10px; text-align: left; overflow-wrap: anywhere; max-width: 100%; }
 .business-card-split { border-top: 0; padding: 0; gap: 0; }
 .business-card-split .business-card-identity { padding: 38px; }
 .business-card-split .business-card-details { padding: 38px 25px; width: 245px; background: var(--c-surface); border-left: 3px solid var(--c-accent); }
+.business-card-split .business-card-identity:has(.business-card-avatar) + .business-card-details { padding-top: 114px; }
 .business-card-minimal { border-top: 0; border-bottom: 5px solid var(--c-accent); }

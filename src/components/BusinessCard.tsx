@@ -1,4 +1,5 @@
 import { StyledQR } from "@/components/StyledQR";
+import { useMemo } from "react";
 import { DEFAULT_QR, type QrSettings } from "@/lib/card-types";
 import type { TemplateDesign } from "@/lib/template-types";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ export function BusinessCard({ design, qrSettings = DEFAULT_QR, onQrRendered }: 
   onQrRendered?: () => void;
 }) {
   const origin = typeof window === "undefined" ? "" : window.location.origin;
+  const templateQr = useMemo(() => ({ ...qrSettings, bg: DEFAULT_QR.bg }), [qrSettings]);
   return (
     <div
       data-card-theme={design.theme}
@@ -35,7 +37,7 @@ export function BusinessCard({ design, qrSettings = DEFAULT_QR, onQrRendered }: 
           <div className="business-card-qr">
             <StyledQR
               data={`${origin}/c/${design.cardSlug}`}
-              settings={{ ...qrSettings, bg: "transparent" }}
+              settings={templateQr}
               size={160}
               onRendered={onQrRendered}
             />
