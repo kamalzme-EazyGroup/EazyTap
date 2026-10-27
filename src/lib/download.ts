@@ -8,3 +8,16 @@ export function downloadBlob(blob: Blob, filename: string) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
+
+export async function deliverFile(blob: Blob, filename: string) {
+  const file = new File([blob], filename, { type: blob.type });
+  if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    }
+  }
+  downloadBlob(blob, filename);
+}

@@ -8,3 +8,7 @@
 - [x] Add company address and order identity, company, address, then contacts.
 - [x] Use linked profile QR settings in preview and exported PNG.
 - [x] Test saving/reopening and PNG output.
+
+# Template QR alignment and download correction
+- [ ] Align QR beside name details and restore white QR background/border.
+- [ ] Keep prepared PNG available and verify a real download with a linked QR.

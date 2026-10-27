@@ -23,7 +23,7 @@ import { accessQuery } from "@/lib/access-query";
 import { can, customizationAction } from "@/lib/permissions";
 import { templateDesignSchema, newDesign, linkedQrSettings, type TemplateDesign } from "@/lib/template-types";
 import { CARD_THEMES, CARD_FONTS } from "@/lib/themes";
-import { downloadBlob } from "@/lib/download";
+import { deliverFile } from "@/lib/download";
 
 const templatesQuery = queryOptions({
   queryKey: ["templates"],
@@ -244,7 +244,7 @@ function TemplateStudio() {
               {png ? (
                 <Button
                   onClick={() =>
-                    downloadBlob(png, `${name.replace(/[^a-z0-9-]/gi, "-") || "business-card"}.png`)
+                    deliverFile(png, `${name.replace(/[^a-z0-9-]/gi, "-") || "business-card"}.png`)
                   }
                 >
                   <Download />
