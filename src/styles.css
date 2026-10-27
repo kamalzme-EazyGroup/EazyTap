@@ -276,7 +276,7 @@ html[data-app-theme] {
 .business-card-name { font-size: 32px; line-height: 1.15; overflow-wrap: anywhere; }
 .business-card-title { font-size: 14px; margin-top: 8px; color: var(--c-muted); overflow-wrap: anywhere; }
 .business-card-tagline { font-size: 12px; margin-top: auto; padding-top: 12px; color: var(--c-muted); overflow-wrap: anywhere; }
-.business-card-details { display: flex; width: 180px; flex-shrink: 0; flex-direction: column; align-items: flex-end; justify-content: center; gap: 16px; }
+.business-card-details { display: flex; width: 180px; flex-shrink: 0; flex-direction: column; align-items: flex-end; justify-content: flex-end; gap: 16px; }
 .business-card-qr { overflow: hidden; }
 .business-card-contact { font-size: 12px; line-height: 1.6; margin-top: 10px; text-align: left; overflow-wrap: anywhere; max-width: 100%; }
 .business-card-split { border-top: 0; padding: 0; gap: 0; }

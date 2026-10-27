@@ -33,7 +33,12 @@ export function BusinessCard({ design, qrSettings = DEFAULT_QR, onQrRendered }: 
       <div className="business-card-details">
         {design.cardSlug && (
           <div className="business-card-qr">
-            <StyledQR data={`${origin}/c/${design.cardSlug}`} settings={qrSettings} size={160} onRendered={onQrRendered} />
+            <StyledQR
+              data={`${origin}/c/${design.cardSlug}`}
+              settings={{ ...qrSettings, bg: "transparent" }}
+              size={160}
+              onRendered={onQrRendered}
+            />
           </div>
         )}
       </div>
