@@ -5,6 +5,6 @@
 - [x] Verify the end-to-end flow in the preview.
 
 # Template company details and linked QR
-- [ ] Add company address and order identity, company, address, then contacts.
-- [ ] Use linked profile QR settings in preview and exported PNG.
-- [ ] Test saving/reopening and PNG output.
+- [x] Add company address and order identity, company, address, then contacts.
+- [x] Use linked profile QR settings in preview and exported PNG.
+- [x] Test saving/reopening and PNG output.
