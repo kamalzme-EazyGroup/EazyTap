@@ -9,13 +9,13 @@ type QRInstance = {
   getRawData: (extension: "png") => Promise<Blob | null>;
 };
 
-function buildOptions(data: string, s: QrSettings, size: number) {
+function buildOptions(data: string, s: QrSettings, size: number, margin: number) {
   return {
     width: size,
     height: size,
     type: "canvas",
     data,
-    margin: 8,
+    margin,
     image: s.logo || undefined,
     qrOptions: { errorCorrectionLevel: "H" },
     dotsOptions: { color: s.fg, type: s.dotsType },
@@ -30,6 +30,7 @@ export function StyledQR({
   data,
   settings,
   size = 240,
+  margin = 8,
   onReady,
   onRendered,
   className,
@@ -37,6 +38,7 @@ export function StyledQR({
   data: string;
   settings: QrSettings;
   size?: number;
+  margin?: number;
   onReady?: (qr: QRInstance) => void;
   onRendered?: (() => void) | undefined;
   className?: string;
@@ -52,7 +54,7 @@ export function StyledQR({
         settings.logo ? roundCorners(settings.logo).catch(() => settings.logo) : Promise.resolve(null),
       ]);
       if (cancelled || !ref.current) return;
-      const opts = buildOptions(data, { ...settings, logo: logo ?? null }, size);
+      const opts = buildOptions(data, { ...settings, logo: logo ?? null }, size, margin);
       if (!qrRef.current) {
         const qr = new QRCodeStyling(opts as never) as unknown as QRInstance;
         ref.current.innerHTML = "";
@@ -71,7 +73,7 @@ export function StyledQR({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, settings, size]);
+  }, [data, settings, size, margin]);
 
   return <div ref={ref} className={className} style={{ width: size, height: size }} />;
 }

@@ -39,6 +39,7 @@ export function BusinessCard({ design, qrSettings = DEFAULT_QR, onQrRendered }: 
               data={`${origin}/c/${design.cardSlug}`}
               settings={templateQr}
               size={160}
+              margin={2}
               onRendered={onQrRendered}
             />
           </div>
