@@ -65,8 +65,18 @@ function AuthPage() {
   }
 
   async function oauth(provider: "google" | "lovable") {
-    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/auth" });
-    if (r.error) toast.error(r.error.message ?? "Sign-in failed");
+    if (provider === "google") {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/auth",
+        },
+      });
+      if (error) toast.error(error.message);
+    } else {
+      const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/auth" });
+      if (r.error) toast.error(r.error.message ?? "Sign-in failed");
+    }
   }
 
   return (
