@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
+import { watchAuthCallback } from "@/lib/auth-callback";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -32,13 +33,11 @@ function AuthPage() {
   const [sent, setSent] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
-    });
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) navigate({ to: "/dashboard", replace: true });
-    });
-    return () => data.subscription.unsubscribe();
+    return watchAuthCallback(
+      supabase.auth,
+      () => { void navigate({ to: "/dashboard", replace: true }); },
+      (error) => toast.error(error.message),
+    );
   }, [navigate]);
 
   async function submit(e: React.FormEvent) {

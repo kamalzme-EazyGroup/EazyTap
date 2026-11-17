@@ -18,3 +18,4 @@
 - Memoize template QR settings before passing them to StyledQR so unrelated render updates cannot restart QR rendering and clear a prepared PNG; prepared files use the shared delivery helper for touch-device sharing or browser download.
 - Lead capture: cards.collect_contacts/collect_fields configure a pre-save visitor form; submissions go to card_leads via an anon INSERT policy limited to collecting cards, and owners read/delete them through authenticated server functions.
 - Site settings live in the single-row site_settings table (publicly readable, super-admin writable); the root loader fetches them and applies colours/font on <html>, while Logo and the home page render logo, name, announcement and contact details from them.
+- OAuth callback handling lives in app-owned auth-callback.ts, subscribes before getSession, and defers navigation outside the auth lock; keep the generated client untouched (its SDK default enables detectSessionInUrl).
