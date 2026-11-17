@@ -1,5 +1,9 @@
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 
+export function authCallbackUrl(origin: string) {
+  return new URL("/auth", origin).href;
+}
+
 /** getSession waits for the SDK's URL-session initialization (detectSessionInUrl defaults to true). */
 export function watchAuthCallback(
   auth: SupabaseClient["auth"],

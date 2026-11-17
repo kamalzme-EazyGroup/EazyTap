@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
-import { watchAuthCallback } from "@/lib/auth-callback";
+import { authCallbackUrl, watchAuthCallback } from "@/lib/auth-callback";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -48,7 +48,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/dashboard" },
+          options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
         });
         if (error) throw error;
         setSent(true);
@@ -68,12 +68,12 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/auth",
+          redirectTo: authCallbackUrl(window.location.origin),
         },
       });
       if (error) toast.error(error.message);
     } else {
-      const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/auth" });
+      const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: authCallbackUrl(window.location.origin) });
       if (r.error) toast.error(r.error.message ?? "Sign-in failed");
     }
   }

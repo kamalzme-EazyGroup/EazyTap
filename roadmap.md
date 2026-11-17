@@ -12,3 +12,8 @@
 # Template QR alignment and download correction
 - [x] Align QR beside name details and restore white QR background/border.
 - [x] Keep prepared PNG available and verify a real download with a linked QR.
+
+# Authentication callback sweep
+- [x] Review login, signup, social callbacks, session listeners, protected screens, and invitations.
+- [x] Send future email confirmations to the public auth callback, matching social login.
+- [x] Test hash-token handling, existing sessions, and signed-out behavior.
