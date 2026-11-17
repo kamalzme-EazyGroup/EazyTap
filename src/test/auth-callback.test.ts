@@ -25,7 +25,7 @@ describe("OAuth callback session", () => {
     stop();
   });
 
-  it("redirects an existing authenticated session and leaves signed-out visitors on /auth", async () => {
+  it("leaves signed-out visitors on /auth", async () => {
     const client = createClient("https://signedout.example.test", "test-key", {
       auth: { persistSession: false, autoRefreshToken: false },
     });
