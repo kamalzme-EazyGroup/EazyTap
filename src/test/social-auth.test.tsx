@@ -33,4 +33,15 @@ describe("managed social sign-up", () => {
     }));
     expect(directSignIn).not.toHaveBeenCalled();
   });
+  it.each(["google", "lovable"] as const)("uses managed %s sign-in from the create-account screen", async (provider) => {
+    const AuthPage = Route.options.component;
+    if (!AuthPage) throw new Error("Auth page missing");
+    render(<AuthPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Create an account" }));
+    fireEvent.click(screen.getByRole("button", { name: provider === "google" ? "Continue with Google" : "Continue with Lovable" }));
+    await waitFor(() => expect(managedSignIn).toHaveBeenCalledWith(provider, {
+      redirect_uri: `${window.location.origin}/auth`,
+    }));
+    expect(directSignIn).not.toHaveBeenCalled();
+  });
 });
