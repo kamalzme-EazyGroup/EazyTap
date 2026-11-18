@@ -64,17 +64,14 @@ function AuthPage() {
   }
 
   async function oauth(provider: "google" | "lovable") {
-    if (provider === "google") {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: authCallbackUrl(window.location.origin),
-        },
-      });
-      if (error) toast.error(error.message);
-    } else {
+    setBusy(true);
+    try {
       const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: authCallbackUrl(window.location.origin) });
       if (r.error) toast.error(r.error.message ?? "Sign-in failed");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Sign-in failed");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -100,10 +97,10 @@ function AuthPage() {
                 {mode === "signin" ? "Sign in to manage your cards." : "Start building your digital card."}
               </p>
               <div className="mt-6 space-y-3">
-                <Button type="button" variant="outline" className="h-11 w-full rounded-full" onClick={() => oauth("google")}>
+                <Button type="button" variant="outline" className="h-11 w-full rounded-full" disabled={busy} onClick={() => oauth("google")}>
                   Continue with Google
                 </Button>
-                <button type="button" className="lovable-auth-button w-full" onClick={() => oauth("lovable")}>
+                <button type="button" className="lovable-auth-button w-full" disabled={busy} onClick={() => oauth("lovable")}>
                   Continue with Lovable
                 </button>
               </div>
