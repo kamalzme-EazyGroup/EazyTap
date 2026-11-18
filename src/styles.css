@@ -62,6 +62,9 @@
 :root {
   --radius: 0.875rem;
   --qr-paper: #ffffff;
+  --google-button-background: #131314;
+  --google-button-border: #8e918f;
+  --google-button-text: #e3e3e3;
   --background: oklch(0.15 0.03 255);
   --foreground: oklch(0.97 0.01 240);
   --card: oklch(0.19 0.04 255);
@@ -104,6 +107,18 @@
     radial-gradient(70% 60% at 50% 100%, oklch(0.45 0.15 270 / 20%), transparent 70%);
   --shadow-glow: 0 10px 40px -10px oklch(0.65 0.19 252 / 50%);
   --shadow-float: 0 40px 80px -30px oklch(0 0 0 / 70%), 0 0 0 1px oklch(1 0 0 / 6%);
+}
+
+.google-sign-in,
+.google-sign-in:hover {
+  background: var(--google-button-background);
+  border: 1px solid var(--google-button-border);
+  color: var(--google-button-text);
+  gap: 10px;
+  padding-inline: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 /* ---------- Profile card themes ---------- */

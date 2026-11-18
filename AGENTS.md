@@ -19,4 +19,4 @@
 - Lead capture: cards.collect_contacts/collect_fields configure a pre-save visitor form; submissions go to card_leads via an anon INSERT policy limited to collecting cards, and owners read/delete them through authenticated server functions.
 - Site settings live in the single-row site_settings table (publicly readable, super-admin writable); the root loader fetches them and applies colours/font on <html>, while Logo and the home page render logo, name, announcement and contact details from them.
 - OAuth callback handling lives in app-owned auth-callback.ts, subscribes before getSession, and defers navigation outside the auth lock; keep the generated client untouched (its SDK default enables detectSessionInUrl).
-- Social sign-in uses the generated Lovable auth helper for both Google and Lovable; direct Google authorization requires a separate secret that managed sign-in does not use.
+- Google sign-in uses the browser client's direct OAuth call with a same-origin public /auth callback; production is externally hosted and cannot use managed OAuth proxy routes. Keep generated integration files untouched and unused by the auth page.

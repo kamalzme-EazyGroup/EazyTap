@@ -1,9 +1,10 @@
 import { fireEvent, render, screen, waitFor, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { toast } from "sonner";
 
 const { managedSignIn, directSignIn } = vi.hoisted(() => ({
   managedSignIn: vi.fn().mockResolvedValue({ redirected: true }),
-  directSignIn: vi.fn(),
+  directSignIn: vi.fn().mockResolvedValue({ data: { url: "https://accounts.google.com" }, error: null }),
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -17,31 +18,34 @@ vi.mock("@/lib/auth-callback", () => ({
   watchAuthCallback: () => () => {},
 }));
 vi.mock("@/components/Logo", () => ({ Logo: () => null }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
 import { Route } from "@/routes/auth";
 
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
-describe("managed social sign-up", () => {
-  it("uses managed Google sign-in with a public callback instead of secret-dependent authorization", async () => {
+describe("external Google authentication", () => {
+  it.each(["signin", "signup"])("uses direct Google OAuth from the %s screen with a public same-origin callback", async (mode) => {
     const AuthPage = Route.options.component;
     if (!AuthPage) throw new Error("Auth page missing");
     render(<AuthPage />);
+    if (mode === "signup") fireEvent.click(screen.getByRole("button", { name: "Create an account" }));
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-    await waitFor(() => expect(managedSignIn).toHaveBeenCalledWith("google", {
-      redirect_uri: `${window.location.origin}/auth`,
+    await waitFor(() => expect(directSignIn).toHaveBeenCalledWith({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth` },
     }));
-    expect(directSignIn).not.toHaveBeenCalled();
+    expect(managedSignIn).not.toHaveBeenCalled();
   });
-  it.each(["google", "lovable"] as const)("uses managed %s sign-in from the create-account screen", async (provider) => {
+  it("reports provider errors and allows another attempt", async () => {
+    directSignIn.mockResolvedValueOnce({ error: { message: "Google is not configured" } });
     const AuthPage = Route.options.component;
     if (!AuthPage) throw new Error("Auth page missing");
     render(<AuthPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Create an account" }));
-    fireEvent.click(screen.getByRole("button", { name: provider === "google" ? "Continue with Google" : "Continue with Lovable" }));
-    await waitFor(() => expect(managedSignIn).toHaveBeenCalledWith(provider, {
-      redirect_uri: `${window.location.origin}/auth`,
-    }));
-    expect(directSignIn).not.toHaveBeenCalled();
+    const button = screen.getByRole("button", { name: "Continue with Google" });
+    fireEvent.click(button);
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Google is not configured"));
+    expect(button).not.toBeDisabled();
+    expect(managedSignIn).not.toHaveBeenCalled();
   });
 });
